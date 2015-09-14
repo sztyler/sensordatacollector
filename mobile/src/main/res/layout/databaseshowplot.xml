@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/SVDatabasePlot"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+        <LinearLayout
+            android:id="@+id/LLDatabasePlot"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/DatabasePlot"
+                android:layout_width="fill_parent"
+                android:layout_height="500dip"
+                android:layout_weight="1"
+                androidPlot.titleWidget.labelPaint.textSize="@dimen/title_font_size"
+                androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
+                androidPlot.rangeLabelWidget.labelPaint.textSize="11dp"
+                androidPlot.graphWidget.rangeLabelPaint.textSize="11dp"
+                androidPlot.graphWidget.rangeOriginLabelPaint.textSize="11dp"
+                androidPlot.graphWidget.domainLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.graphWidget.domainOriginLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.legendWidget.textPaint.textSize="@dimen/legend_text_font_size"
+                androidPlot.legendWidget.iconSizeMetrics.heightMetric.value="15dp"
+                androidPlot.legendWidget.iconSizeMetrics.widthMetric.value="15dp"
+                androidPlot.legendWidget.heightMetric.value="25dp"
+                androidPlot.legendWidget.positionMetrics.anchor="right_bottom"
+                androidPlot.graphWidget.marginLeft="25dp"
+                androidPlot.graphWidget.marginBottom="20dp"
+                />
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/PositionPlot"
+                android:layout_width="fill_parent"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                androidPlot.title="Position"
+                androidPlot.titleWidget.labelPaint.textSize="18dp"
+                androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
+                androidPlot.graphWidget.domainLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.graphWidget.domainOriginLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.legendWidget.textPaint.textSize="12dp"
+                androidPlot.legendWidget.iconSizeMetrics.heightMetric.value="15dp"
+                androidPlot.legendWidget.iconSizeMetrics.widthMetric.value="15dp"
+                androidPlot.legendWidget.positionMetrics.anchor="right_bottom"
+                androidPlot.graphWidget.marginBottom="14dp"
+                androidPlot.graphWidget.marginLeft="10dp"
+                androidPlot.graphWidget.marginRight="10dp"/>
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/PosturePlot"
+                android:layout_width="fill_parent"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                androidPlot.title="Posture"
+                androidPlot.titleWidget.labelPaint.textSize="18dp"
+                androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
+                androidPlot.graphWidget.domainLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.graphWidget.domainOriginLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.legendWidget.textPaint.textSize="12dp"
+                androidPlot.legendWidget.iconSizeMetrics.heightMetric.value="15dp"
+                androidPlot.legendWidget.iconSizeMetrics.widthMetric.value="15dp"
+                androidPlot.legendWidget.positionMetrics.anchor="right_bottom"
+                androidPlot.graphWidget.marginBottom="14dp"
+                androidPlot.graphWidget.marginLeft="10dp"
+                androidPlot.graphWidget.marginRight="10dp"/>
+
+            <com.androidplot.xy.XYPlot
+                android:id="@+id/ActivityPlot"
+                android:layout_width="fill_parent"
+                android:layout_height="200dp"
+                android:layout_weight="1"
+                androidPlot.title="Activity"
+                androidPlot.titleWidget.labelPaint.textSize="18dp"
+                androidPlot.domainLabelWidget.labelPaint.textSize="@dimen/domain_label_font_size"
+                androidPlot.graphWidget.domainLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.graphWidget.domainOriginLabelPaint.textSize="@dimen/domain_tick_label_font_size2"
+                androidPlot.legendWidget.textPaint.textSize="12dp"
+                androidPlot.legendWidget.iconSizeMetrics.heightMetric.value="15dp"
+                androidPlot.legendWidget.iconSizeMetrics.widthMetric.value="15dp"
+                androidPlot.legendWidget.positionMetrics.anchor="right_bottom"
+                androidPlot.graphWidget.marginBottom="14dp"
+                androidPlot.graphWidget.marginLeft="10dp"
+                androidPlot.graphWidget.marginRight="10dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <FrameLayout
+        android:id="@+id/progressBarHolder"
+        android:animateLayoutChanges="true"
+        android:visibility="gone"
+        android:alpha="0.7"
+        android:background="#000000"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <ProgressBar
+            android:id="@+id/GraphBuilderprogressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="false"
+            android:max="100"
+            android:minHeight="25dp"
+            android:minWidth="250dp"
+            android:progress="1"
+            android:progressDrawable="@drawable/redprogress"/>
+
+        <TextView
+            android:id="@+id/GraphBuildertextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_alignLeft="@+id/GraphBuilderprogressBar"
+            android:layout_below="@+id/GraphBuilderprogressBar"/>
+
+    </FrameLayout>
+
+</FrameLayout>

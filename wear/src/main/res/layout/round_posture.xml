@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/posture_main_view"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    style="@style/AppTheme">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/posture_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="@string/posture_info"/>
+
+        <TextView
+            android:id="@+id/posture_posture"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/green"
+            android:textStyle="bold|italic"
+            android:textSize="18sp"
+            android:text="Sitting"/>
+
+        <TextView
+            android:id="@+id/posture_position"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/green"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="(Office/Workplace)"/>
+
+        <TextView
+            android:id="@+id/posture_activity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/green"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="(Desk Work)"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/activity_selector_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="3dp"
+            android:gravity="center"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/activity_selector_button_description"
+            android:background="@null"
+            android:src="@drawable/activity"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"/>
+
+        <ImageButton
+            android:id="@+id/posture_setting_button"
+            android:layout_width="32dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="3dp"
+            android:gravity="center"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/posture_setting_button_description"
+            android:background="@null"
+            android:src="@drawable/posture"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+    <android.support.wearable.view.DismissOverlayView
+        android:id="@+id/dismiss_overlay"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"/>
+</RelativeLayout>

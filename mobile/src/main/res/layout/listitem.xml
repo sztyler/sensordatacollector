@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- list_item.xml -->
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_title"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:paddingTop="15dip"
+    android:paddingBottom="15dip"
+    android:paddingLeft="15dip"
+    android:paddingEnd="0dip"
+    android:paddingRight="0dip"
+    android:textColor="#3E3D3D"
+    android:textSize="20sp"
+    android:gravity="center_vertical"
+    android:textAppearance="?android:attr/textAppearanceLarge"  />

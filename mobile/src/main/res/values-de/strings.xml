@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Global -->
+    <string name="app_name">Sensor Data Collector</string>
+    <string name="app_toast_running1">Die App ist aktiv und sammelt Daten &#8230;</string>
+    <string name="app_toast_running2">Die App ist aktiv aber alle Sensoren sind deaktiviert.</string>
+    <string name="app_toast_destroy1">Die zugeschalteten Geräte wurden angewiesen ihren Dienst zu beenden!</string>
+    <string name="app_toast_destroy2">Der Sensor Data Collector wurde beendet! Alle Sensoren wurden deaktiviert.</string>
+    <string name="app_toast_bluetooth">Gerät außer Reichweite! Bluetooth Verbindung verloren.</string>
+    <string name="app_toast_bluetooth_reestablished">Bluetooth Verbindung wiederhergestellt!</string>
+    <string name="app_icon_antenna">Übersicht</string>
+    <string name="app_icon_statistics">Analyse</string>
+    <string name="app_icon_services">Exportieren</string>
+    <string name="service_name">SensorDataCollectorService</string>
+
+    <!-- Main Screen -->
+    <string name="main_overview">Übersicht</string>
+    <string name="main_overview_sensors">Sensoren</string>
+    <string name="main_overview_sensors_description">Anzahl der aktiven Sensoren</string>
+    <string name="main_overview_power">Energie</string>
+    <string name="main_overview_power_description">zusätzlicher Stromverbrauch</string>
+    <string name="main_overview_power_description2">Ausgenommen</string>
+    <string name="main_overview_database">Datenbank</string>
+    <string name="main_overview_database_description">Größe der Datenbank</string>
+    <string name="main_overview_smartwatch">Geräte</string>
+    <string name="main_overview_smartwatch_description">Übersicht aller verfügbaren Geräte</string>
+    <string name="main_collectors">Verwaltung</string>
+    <string name="main_collectors_sensors">Kollektoren verwalten</string>
+    <string name="main_collectors_activities">Aktivität festlegen</string>
+    <string name="main_collectors_correction">Korrektur/Notiz</string>
+
+    <!-- Device Overview -->
+    <string name="device_title">Geräte</string>
+    <string name="device_localdevice">Lokales Gerät</string>
+
+    <!-- Sensor/Collector Management -->
+    <string name="sensor_selftest_title">Sensoren-Selbsttest</string>
+    <string name="sensor_selftest_notify1">Der Sensor muss gestopped werden, bevor der Selbsttest gestartet wird!</string>
+    <string name="sensor_selftest_notify2">Test nicht implementiert!</string>
+    <string name="sensor_selftest_calc">Berechnung der Frequenz</string>
+    <string name="sensor_selftest_x">X</string>
+    <string name="sensor_selftest_y">Y</string>
+    <string name="sensor_selftest_z">Z</string>
+    <string name="sensor_selftest_frequency">Frequenz</string>
+    <string name="sensor_selftest_button">Test</string>
+    <string name="sensor_selftest_notdetected">nicht erkannt!</string>
+    <string name="sensor_frequency_notify">Der Sensor muss gestopped werden, bevor die Frequenz geändert werden kann!</string>
+    <string name="sensor_frequency_dialog_title">Frequenz</string>
+    <string name="sensor_frequency_dialog_text">Bitte geben Sie die Frequenz (Hz) ein:\n (Warnung: Die App wird nicht mehr reagieren, wenn der Wert zu hoch ist!)</string>
+    <string name="sensor_frequency_dialog_button_ok">OK</string>
+    <string name="sensor_frequency_dialog_button_cancel">Abbruch</string>
+    <string name="sensor_frequency_changed_success">Frequenz erfolgreich gespeichert!</string>
+    <string name="sensor_frequency_changed_failed">Der eingegebene Wert ist keine gültige Zahl!</string>
+    <string name="sensor_frequency_button">Freq</string>
+    <string name="sensor_collector_gps_notify">Die GPS Funktion ist nicht aktiviert oder nicht verfügbar! Bitte prüfe Sie ihre Systemeinstellungen.</string>
+    <string name="sensor_collector_generel_notify1">Fehler beim deaktivieren des Sensors! Bitte beenden Sie die App und starten sie diese neu.</string>
+    <string name="sensor_collector_generel_notify2">Dieser Sensor wird nicht unterstützt!</string>
+    <string name="sensor_collector_custom_notify">Fehler beim aktivieren des Sensors!</string>
+    <string name="sensor_collector_reenable_notify">Zuletzt verwendete Sensoren wieder aktiviert!</string>
+
+    <!-- Activity Management -->
+    <string name="activity_environment_title">Umgebung</string>
+    <string name="activity_environment_select">Auswahl der Umgebung</string>
+    <string name="activity_environment_none">Nicht festgelegt</string>
+    <!--<string name="activity_environment_bedroom">Schlafzimmer</string>
+    <string name="activity_environment_livingroom">Wohnzimmer</string>
+    <string name="activity_environment_bathroom">Badezimmer</string>
+    <string name="activity_environment_stairs">Treppen</string>
+    <string name="activity_environment_outside">Draußen</string>-->
+    <string name="activity_environment_home">Zuhause</string>
+    <string name="activity_environment_office">Büro/Arbeitsplatz</string>
+    <string name="activity_environment_office_old">Büro</string>
+    <string name="activity_environment_transporation">Transportmittel</string>
+    <string name="activity_environment_building">Gebäude</string>
+    <string name="activity_environment_street">Straße/Weg/Wiese</string>
+    <string name="activity_posture_title">Körperhaltung</string>
+    <string name="activity_posture_select">Auswahl der Körperhaltung</string>
+    <string name="activity_posture_none">Nicht festgelegt</string>
+    <!--<string name="activity_posture_idling">faulenzen</string>
+    <string name="activity_posture_walking">laufen</string>
+    <string name="activity_posture_cycling">radeln</string>
+    <string name="activity_posture_driving">Auto fahren</string>
+    <string name="activity_posture_running">rennen</string>
+    <string name="activity_posture_sitting">sitzen</string>
+    <string name="activity_posture_standing">stehen</string>
+    <string name="activity_posture_stairsup">Stufen hoch laufen</string>
+    <string name="activity_posture_stairsdown">Stufen runter laufen</string>-->
+    <string name="activity_posture_walking">gehen</string>
+    <string name="activity_posture_running">rennen</string>
+    <string name="activity_posture_sitting">sitzen</string>
+    <string name="activity_posture_standing">stehen</string>
+    <string name="activity_posture_recumbency">liegen</string>
+    <string name="activity_posture_climbingup">klettern/steigen (hoch)</string>
+    <string name="activity_posture_climbingdown">klettern/steigen (runter)</string>
+    <string name="activity_posture_jumping">springen</string>
+    <string name="activity_devicepositon_title">Geräteposition</string>
+    <string name="activity_devicepositon_select">Auswahl der Geräteposition</string>
+    <string name="activity_devicepositon_none">Nicht festgelegt</string>
+    <string name="activity_devicepositon_head">Kopf</string>
+    <string name="activity_devicepositon_upperarm">Oberarm</string>
+    <string name="activity_devicepositon_forearm">Unterarm</string>
+    <string name="activity_devicepositon_thigh">Oberschenkel</string>
+    <string name="activity_devicepositon_shin">Schienbein</string>
+    <string name="activity_devicepositon_waist">Taille</string>
+    <string name="activity_devicepositon_hip">Hüfte</string>
+    <string name="activity_devicepositon_hand">Hand</string>
+    <string name="activity_devicepositon_chest">Brust</string>
+    <string name="activity_activities_title">Aktivitäten</string>
+    <string name="activity_activities_select">Auswahl der Aktivität</string>
+    <string name="activity_activities_add">Aktivität hinzufügen</string>
+    <string name="activity_activities_exist">Diese Aktivität existiert bereits!</string>
+    <string name="activity_activities_sleeping">Schlafen</string>
+    <string name="activity_activities_eating">Essen/Trinken</string>
+    <string name="activity_activities_personal">Körperpflege</string>
+    <string name="activity_activities_transportation">Transportmittel benutzen</string>
+    <string name="activity_activities_relaxing">Entspannen</string>
+    <string name="activity_activities_functional">Fortbewegen (mit Gehilfe)</string>
+    <string name="activity_activities_medication">Medikamente einnehmen</string>
+    <string name="activity_activities_shopping">Einkaufen</string>
+    <string name="activity_activities_housework">Hausarbeit</string>
+    <string name="activity_activities_preparation">Essen zubereiten</string>
+    <string name="activity_activities_socializing">Geselligkeit</string>
+    <string name="activity_activities_movement">Fortbewegen</string>
+    <string name="activity_activities_deskwork">Schreibtischarbeit</string>
+    <string name="activity_activities_sport">Sport</string>
+    <string name="activity_activities_dialog_activity">Aktivität:</string>
+    <string name="activity_activities_dialog_subactivity">Unter-Aktivität:</string>
+    <string name="activity_subactivities_salad">Salat</string>
+    <string name="activity_subactivities_kebab">Döner</string>
+    <string name="activity_subactivities_pizza">Pizza</string>
+    <string name="activity_subactivities_cleaning">Sauber machen</string>
+    <string name="activity_subactivities_vacuum">Aufräumen</string>
+    <string name="activity_subactivities_cutting">Gemüse schneiden</string>
+    <string name="activity_subactivities_walk">Spazieren gehen</string>
+    <string name="activity_subactivities_bus">Bus</string>
+    <string name="activity_subactivities_car">Auto</string>
+    <string name="activity_subactivities_train">Zug</string>
+    <string name="activity_subactivities_motorcycle">Motorrad</string>
+    <string name="activity_subactivities_skateboard">Skateboard</string>
+    <string name="activity_subactivities_scooter">Roller</string>
+    <string name="activity_subactivities_bicycle">Fahrrad</string>
+    <string name="activity_subactivities_wheelchair">Rollstuhl</string>
+    <string name="activity_subactivities_rollator">Rollator</string>
+    <string name="activity_subactivities_crutch">Krücke</string>
+    <string name="activity_subactivities_soccer">Fußball</string>
+    <string name="activity_subactivities_basketball">Basketball</string>
+    <string name="activity_subactivities_gym">Fitnessstudio</string>
+    <string name="activity_subactivities_gymnastics">Gymnastik</string>
+    <string name="activity_subactivities_dance">Tanzen</string>
+    <string name="activity_subactivities_icehockey">Eishockey</string>
+    <string name="activity_subactivities_jogging">Joggen</string>
+    <string name="activity_subactivities_bicycling">Fahrrad fahren</string>
+    <string name="activity_subactivities_gaming">Spielen</string>
+    <string name="activity_subactivities_tv">Fernsehen</string>
+    <string name="activity_subactivities_sleep">Schlafen</string>
+    <string name="activity_subactivities_general_other">etwas anderes</string>
+    <string name="activity_subactivities_athome">Zuhause</string>
+    <string name="activity_subactivities_bar">Bar &#8260; Diskothek</string>
+    <string name="activity_subactivities_cinema">Kino</string>
+    <string name="activity_subactivities_park">Park &#8260; Draußen</string>
+    <string name="activity_subactivities_brunch">Brunch</string>
+    <string name="activity_subactivities_breakfast">Frühstück</string>
+    <string name="activity_subactivities_lunch">Mittagessen</string>
+    <string name="activity_subactivities_dinner">Abendessen</string>
+    <string name="activity_subactivities_snack">Imbiss</string>
+    <string name="activity_subactivities_coffeebreak">Kaffeepause</string>
+    <string name="activity_subactivities_music">Musik hören</string>
+    <string name="activity_subactivities_gotowork">zur Arbeit gehen</string>
+    <string name="activity_subactivities_gohome">nach Hause gehen</string>
+    <string name="activity_subactivities_tram">Straßenbahn</string>
+
+    <string name="activity_dialog_cancel">Abbrechen</string>
+    <string name="activity_dialog_add">Hinzufügen</string>
+
+    <!-- Activity Correction -->
+    <string name="activity_correction_correction">Korrektur</string>
+    <string name="activity_correction_correction_entry1">Zeitintervall als ungültig markieren</string>
+    <string name="activity_correction_history">Verlauf</string>
+    <string name="activity_correction_history_invalid">Ungültig</string>
+    <string name="activity_correction_history_delete">Löschen</string>
+    <string name="activity_correction_dialog_delete_title">Eintrag löschen</string>
+    <string name="activity_correction_dialog_delete_message">Bitte bestätigen Sie, dass Sie diesen Eintrag löschen möchten.</string>
+
+    <string name="activity_correction_dialog_add_title">Bitte wählen</string>
+    <string name="activity_correction_dialog_add_from">Von</string>
+    <string name="activity_correction_dialog_add_to">Bis</string>
+    <string name="activity_correction_dialog_add_text1">Kennzeichnung der &#8230;</string>
+    <string name="activity_correction_dialog_add_text2">&#8230; ist ungültig</string>
+    <string name="activity_correction_dialog_add_environment">Umgebung</string>
+    <string name="activity_correction_dialog_add_posture">Körperhaltung</string>
+    <string name="activity_correction_dialog_add_device">Geräteposition</string>
+    <string name="activity_correction_dialog_add_activity">Aktivität</string>
+    <string name="activity_correction_dialog_add_invalid">Ihre Eingabe ist ungültig!</string>
+
+    <!-- Analyze -->
+    <string name="analyze_analyze">Analyse</string>
+    <string name="analyze_features_notify">Die Berechnung von Merkmalen für diesen Sensor ist nicht implementiert!</string>
+    <string name="analyze_analyze_database">Rohdaten plotten (Datenbank)</string>
+    <string name="analyze_analyze_database_values">Werte</string>
+    <string name="analyze_analyze_database_cache_enabled">Caching aktiviert. Die Daten werden verzögert in der Datenbank gespeichert.</string>
+    <string name="analyze_analyze_database_dialog_title">Auswahl des Zeitintervalls</string>
+    <string name="analyze_analyze_database_dialog_from">Von</string>
+    <string name="analyze_analyze_database_dialog_to">Bis</string>
+    <string name="analyze_analyze_database_dialog_position">Positionen anzeigen</string>
+    <string name="analyze_analyze_database_dialog_posture">Körperhaltungen anzeigen</string>
+    <string name="analyze_analyze_database_dialog_activity">Aktivitäten anzeigen</string>
+    <string name="analyze_analyze_database_dialog_notify1">Please select timerange in which from Time greater than to Time!</string>
+    <string name="analyze_analyze_database_dialog_notify2">Bitte wählen Sie ein gültiges Zeitintervall aus!</string>
+    <string name="analyze_analyze_database_dialog_notify3">Das ausgewählte Zeitintervall ist zu groß! Bitte wählen Sie ein kleineres Zeitintervall.</string>
+    <string name="analyze_analyze_features">Echtzeitberechnung von Merkmalen</string>
+    <string name="analyze_analyzelive">Sensor Live Daten</string>
+    <string name="analyze_analyzelive_collecting">Sammeln</string>
+    <string name="analyze_analyzelive_device">Gerät</string>
+    <string name="analyze_analyzelive_disabled">Die Echtzeitdarstellung ist derzeit deaktiviert!</string>
+    <string name="analyze_gps_notify">Google Play wird nicht unterstützt!</string>
+    <string name="analyze_analyzelive_loading1">Initialisierung des Graphen</string>
+    <string name="analyze_analyzelive_loading2">Daten werden abgefragt &#8230;</string>
+    <string name="analyze_analyzelive_loading3">Daten werden geparsed &#8230;</string>
+    <string name="analyze_analyzelive_loading4">Berechnung der Extrema &#8230;</string>
+    <string name="analyze_analyzelive_loading5">Graph wird gezeichnet &#8230;</string>
+    <string name="analyze_analyzelive_loading6">Aktivitäten werden geladen &#8230;</string>
+    <string name="analyze_analyzelive_loading7">Umgebungen werden geladen &#8230;</string>
+    <string name="analyze_analyzelive_loading8">Körperhaltungen werden geladen &#8230;</string>
+    <string name="analyze_analyzelive_loading9">Vorgang abgeschlossen</string>
+
+    <!-- Export / About -->
+    <string name="option_export_title">Optionen</string>
+    <string name="option_export_delete">Datenbank löschen</string>
+    <string name="option_export_delete_message">Sind Sie wirklich sicher das Sie die Datenbank vollständig löschen möchten? Bitte bestätigen Sie diese Aktion.</string>
+    <string name="option_export_delete_message_checkbox">Ja! Ich möchte die gesamte Datenbank löschen!</string>
+    <string name="option_export_delete_success">Datenbank wurde gelöscht!</string>
+    <string name="option_export_delete_failed1">Die Datenbank konnte nicht gelöscht werden! Bitte überprüfen Sie ob alle Collectoren abgeschaltet sind.</string>
+    <string name="option_export_export_failed2">Die Datenbank konnte nicht exportiert werden! Bitte überprüfen Sie ob alle Collectoren abgeschaltet sind.</string>
+    <string name="option_export_copy">Datenbank auf SD-Karte kopieren</string>
+    <string name="option_export_export">Tabellen auf die SD-Karte exportieren (CSV)</string>
+    <string name="option_export_dialog_title">Auswahl der Tabellen</string>
+    <string name="option_export_dialog_cancel">Abbruch</string>
+    <string name="option_export_dialog_ok">Exportieren</string>
+    <string name="option_export_nosdcardfound">Keine SD-Karte gefunden!</string>
+    <string name="option_export_couldnotcreatefile">Es konnte keine Datei erstellt ewrden!</string>
+    <string name="option_export_erroropenfile">Es trat ein Fehler beim Öffnen der Datei auf!</string>
+    <string name="option_export_errorwritingfile">Es trat ein Fehler beim Schreiben auf!</string>
+    <string name="option_export_copysuccessful">Kopiervorgang erfolgreich abgeschlossen!</string>
+    <string name="option_export_filedoesnotexist">Die Datei existiert nicht!</string>
+    <string name="option_export_filewritesuccessful">Die Daten wurden erfolgreich geschrieben!</string>
+    <string name="option_export_success">Export erfolgreich abgeschlossen!</string>
+    <string name="option_export_failed">Export fehlgeschlagen</string>
+    <string name="option_about_title">Über</string>
+    <string name="option_about_version">Version</string>
+    <string name="option_about_version_description">1.6.0</string>
+    <string name="option_about_developer">Entwickler</string>
+    <string name="option_about_developer_description">Timo Sztyler (2014/2015)\nFabian Kramm (2014)</string>
+    <string name="option_about_institution">Institution</string>
+    <string name="option_about_instituiton_description">Universität Mannheim</string>
+
+    <!-- Wearable Listener -->
+    <string name="listener_app_connected">Verbindung zu einem externen Sensorgerät hergestellt!</string>
+    <string name="listener_app_disconnected">Verbindung zu einem externen Sensorgerät getrennt!</string>
+    <string name="listener_database_failed">Fehler! Externe Datenbankanfrage fehlgeschlagen!</string>
+
+    <!-- Color -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="grey">#A0A0A0</color>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+
+    <!-- Others -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Abbruch</string>
+    <string name="activity_activity">Aktivität:</string>
+    <string name="activity_subactivity">Unter-Aktivität:</string>
+    <string name="activity_create1">Parent Activity:</string>
+    <string name="activity_create2">Sub-Activity Name:</string>
+    <string name="activity_create3">Create Activity</string>
+    <string name="activity_create4">Create Sub-Activity</string>
+    <string name="activity_create5">Create Position</string>
+    <string name="activity_create6">Create Posture</string>
+    <string name="activity_delete1">X</string>
+    <string name="activity_delete2">Delete Activity</string>
+    <string name="activity_delete3">Delete Sub-Activity</string>
+    <string name="activity_delete4">Delete Position</string>
+    <string name="activity_delete5">Delete Posture</string>
+</resources>

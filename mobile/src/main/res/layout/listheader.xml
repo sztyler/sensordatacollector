@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_header_title"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="3dip"
+    android:paddingBottom="3dip"
+    android:paddingLeft="7dip"
+    android:paddingRight="0dip"
+    android:paddingEnd="0dip"
+    android:textColor="#FFFFFF"
+    android:background="#3E3D3D"
+    style="?android:attr/listSeparatorTextViewStyle" />

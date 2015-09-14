@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sensor Data Collector</string>
+    <string name="app_toast_running">The app is still running and collecting &#8230;</string>
+    <string name="app_toast_destroy">"Sensor Wearable App destroyed!"</string>
+    <string name="service_name">SensorService</string>
+
+    <string name="welcome_info">Collector started!</string>
+    <string name="welcome_info2">(Touch to select an activity)</string>
+    <string name="welcome_button_continue_description">Continue Button to switch to the main view</string>
+    <string name="welcome_long_press_exit">X</string>
+
+    <string name="posture_info">Current Activity</string>
+    <string name="posture_setting_button_description">Settings Button that switch to a new activity</string>
+    <string name="activity_selector_button_description">Activity Selector Button</string>
+    <string name="posture_headline">Posture</string>
+    <string name="position_headline">Position</string>
+    <string name="activity_headline">Activity</string>
+    <string name="activity_general_loading">loading...</string>
+    <string name="activity_general_notspecified">Not Specified</string>
+    <string name="activity_general_activities">Activities</string>
+
+    <string name="broadcast_outofrange">Warning! Smartphone out of Range!</string>
+
+    <string name="database_delete">Database deleted!</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sensor Data Collector</string>
+    <string name="app_toast_running">Die App ist aktiv und sammelt Daten &#8230;</string>
+    <string name="app_toast_destroy">Der Sensor Data Collector wurde beendet!</string>
+    <string name="service_name">SensorService</string>
+
+    <string name="welcome_info">Kollektor gestarted!</string>
+    <string name="welcome_info2">(Berühren um eine Aktivität auszuwählen)</string>
+    <string name="welcome_button_continue_description">Wechselt zurück in die Hauptansicht</string>
+    <string name="welcome_long_press_exit">X</string>
+
+    <string name="posture_info">Momentane Aktivität</string>
+    <string name="posture_setting_button_description">Einstellungsbutton</string>
+    <string name="posture_headline">Körperhaltungen</string>
+    <string name="position_headline">Umgebung</string>
+    <string name="activity_headline">Aktivität</string>
+    <string name="activity_general_loading">lädt &#8230;</string>
+    <string name="activity_general_notspecified">Nicht festgelegt</string>
+    <string name="activity_general_activities">Aktivitäten</string>
+
+    <string name="broadcast_outofrange">Achtung! Das Smartphone scheint außer Reichweite!</string>
+
+    <string name="database_delete">Datenbank wurde gelöscht!</string>
+</resources>

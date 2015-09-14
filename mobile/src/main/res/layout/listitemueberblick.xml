@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <TextView
+	    android:id="@+id/list_item_ueberblick_title"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:paddingTop="10dip"
+	    android:paddingBottom="3dip"
+	    android:paddingLeft="15dip"
+	    android:paddingEnd="0dip"
+        android:paddingRight="0dip"
+	    android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#454444"
+	    android:textSize="20sp"
+	    />
+    <TextView
+        android:id="@+id/list_item_ueberblick_title_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="15dip"
+        android:paddingEnd="0dip"
+        android:paddingRight="0dip"
+        android:paddingBottom="10dip"
+        android:layout_below="@id/list_item_ueberblick_title"
+        android:textColor="@color/grey"
+        android:textSize="14sp" />
+    <TextView
+	    android:id="@+id/list_item_ueberblick_value"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:paddingTop="10dip"
+	    android:paddingBottom="15dip"
+	    android:paddingLeft="15dip"
+	    android:paddingEnd="5dip"
+        android:paddingRight="5dip"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#3E3D3D"
+	    android:textSize="16sp" />
+</RelativeLayout>

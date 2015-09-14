@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="default_settings_circle_radius">18dp</dimen>
+    <dimen name="selected_settings_circle_radius">24dp</dimen>
+
+    <dimen name="wear_itemrow_dimension">52dp</dimen>
+    <dimen name="wear_itemrow_leftspace1">40dp</dimen>
+    <dimen name="wear_itemrow_leftspace2">96dp</dimen>
+    <dimen name="wear_itemrow_square_small">35dp</dimen>
+    <dimen name="wear_itemrow_square_large">45dp</dimen>
+
+    <dimen name="round_side_inset">32dp</dimen>
+</resources>

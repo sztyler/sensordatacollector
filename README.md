@@ -1,2 +1,2 @@
-# sensordatacollector
-Android Sensor Data Collector
+# Sensor Data Collector
+This is an Android application that allows to record all common build-in sensors of the wearable device (smart-phone and smart-watch). It is possible to specifiy the sampling rate and record several sensors simultaneously. In addition, it is possible to label the recorded data by specifying the current activity, posture, and location. The recorded data can be visualized as well as exported in several formats.

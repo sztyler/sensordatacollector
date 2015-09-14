@@ -1,0 +1,210 @@
+package de.unima.ar.collector.sensors;
+
+import android.content.ContentValues;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
+import android.util.Log;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import de.unima.ar.collector.SensorDataCollectorService;
+import de.unima.ar.collector.controller.SQLDBController;
+import de.unima.ar.collector.database.DatabaseHelper;
+import de.unima.ar.collector.extended.Plotter;
+import de.unima.ar.collector.shared.database.SQLTableName;
+import de.unima.ar.collector.shared.util.DeviceID;
+import de.unima.ar.collector.util.PlotConfiguration;
+
+
+/**
+ * @author Fabian Kramm, Timo Sztyler
+ */
+public class MicrophoneCollector extends CustomCollector
+{
+    private static final int      type       = -2;
+    private static final String[] valueNames = new String[]{ "attr_db", "attr_time" };
+
+    private static Map<String, Plotter> plotters = new HashMap<>();
+
+    private       MediaRecorder mRecorder = null;
+    public static double        REFERENCE = 0.00002;
+
+
+    public MicrophoneCollector()
+    {
+        super();
+
+        // create new plotter
+        List<String> devices = DatabaseHelper.getStringResultSet("SELECT device FROM " + SQLTableName.DEVICES, null);
+        for(String device : devices) {
+            MicrophoneCollector.createNewPlotter(device);
+        }
+    }
+
+
+    @Override
+    public void onRegistered()
+    {
+        /*
+         * if (mRecorder == null) { mRecorder = new MediaRecorder();
+         * mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+         * mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+         * mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+         * mRecorder.setOutputFile("/dev/null"); try { mRecorder.prepare(); }
+         * catch (IllegalStateException e) { e.printStackTrace(); } catch
+         * (IOException e) { e.printStackTrace(); } mRecorder.start(); }
+         * //
+         */
+
+    }
+
+
+    @Override
+    public void onDeRegistered()
+    {
+        // ar.stop();
+        if(mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+        }
+    }
+
+
+    @Override
+    public void doTask()
+    {
+        // http://stackoverflow.com/questions/10655703/what-does-androids-getmaxamplitude-function-for-the-mediarecorder-actually-gi
+
+        int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
+        // making the buffer bigger....
+        bufferSize = bufferSize * 4;
+        AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+
+        short data[] = new short[bufferSize];
+        double average = 0.0;
+        recorder.startRecording();
+        // recording data;
+        recorder.read(data, 0, bufferSize);
+
+        recorder.stop();
+        for(short s : data) {
+            if(s > 0) {
+                average += Math.abs(s);
+            } else {
+                bufferSize--;
+            }
+        }
+        // x=max;
+        double x = average / bufferSize;
+        recorder.release();
+        double db;
+        if(x == 0) {
+            Log.w("TAG", "Warning no sound captured!");
+            return;
+        }
+        // calculating the pascal pressure based on the idea that the max
+        // amplitude (between 0 and 32767) is
+        // relative to the pressure
+        double pressure = x / 51805.5336; // the value 51805.5336 can be derived
+        // from asuming that x=32767=0.6325
+        // Pa and x=1 = 0.00002 Pa (the
+        // reference value)
+        db = (20 * Math.log10(pressure / REFERENCE));
+        if(db < 0) {
+            return;
+        }
+
+        // if( mRecorder == null )
+        // return;
+
+        // float maxVolume = (float)(20 * Math.log10(mRecorder.getMaxAmplitude()
+        // / 2700.0));
+
+        long time = System.currentTimeMillis();
+        ContentValues newValues = new ContentValues();
+        newValues.put(valueNames[0], db);
+        newValues.put(valueNames[1], time);
+
+        if(db == Double.NEGATIVE_INFINITY || db == Double.POSITIVE_INFINITY || db == Double.NaN) {
+            return;
+        }
+
+        String deviceID = DeviceID.get(SensorDataCollectorService.getInstance());
+        MicrophoneCollector.updateLivePlotter(deviceID, new float[]{ (float) db });
+        MicrophoneCollector.writeDBStorage(deviceID, newValues);
+    }
+
+
+    @Override
+    public Plotter getPlotter(String deviceID)
+    {
+        return plotters.get(deviceID);
+    }
+
+
+    @Override
+    public int getType()
+    {
+        return type;
+    }
+
+
+    public static void createNewPlotter(String deviceID)
+    {
+        PlotConfiguration levelPlot = new PlotConfiguration();
+        levelPlot.plotName = "LevelPlot";
+        levelPlot.rangeMin = 0;
+        levelPlot.rangeMax = 200;
+        levelPlot.rangeName = "db";
+        levelPlot.SeriesName = "volume";
+        levelPlot.domainName = "Axis";
+        levelPlot.domainValueNames = Arrays.copyOfRange(valueNames, 0, 1);
+        levelPlot.tableName = SQLTableName.MICROPHONE;
+        levelPlot.sensorName = "Microphone";
+
+
+        PlotConfiguration historyPlot = new PlotConfiguration();
+        historyPlot.plotName = "HistoryPlot";
+        historyPlot.rangeMin = 0;
+        historyPlot.rangeMax = 200;
+        historyPlot.domainMin = 0;
+        historyPlot.domainMax = 80;
+        historyPlot.rangeName = "db";
+        historyPlot.SeriesName = "volume";
+        historyPlot.domainName = "Time";
+        historyPlot.seriesValueNames = Arrays.copyOfRange(valueNames, 0, 1);
+
+        Plotter plotter = new Plotter(deviceID, levelPlot, historyPlot);
+        plotters.put(deviceID, plotter);
+    }
+
+
+    public static void updateLivePlotter(String deviceID, float[] values)
+    {
+        Plotter plotter = plotters.get(deviceID);
+        if(plotter == null) {
+            MicrophoneCollector.createNewPlotter(deviceID);
+            plotter = plotters.get(deviceID);
+        }
+
+        plotter.setDynamicPlotData(values);
+    }
+
+
+    public static void createDBStorage(String deviceID)
+    {
+        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.MICROPHONE + " (id INTEGER PRIMARY KEY, " + valueNames[1] + " INTEGER UNIQUE, " + valueNames[0] + " REAL)";
+        SQLDBController.getInstance().execSQL(sqlTable);
+    }
+
+
+    public static void writeDBStorage(String deviceID, ContentValues newValues)
+    {
+        SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.MICROPHONE, null, newValues);
+    }
+}
