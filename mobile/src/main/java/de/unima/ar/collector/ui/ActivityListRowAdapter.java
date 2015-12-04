@@ -87,7 +87,7 @@ public class ActivityListRowAdapter extends ArrayAdapter<String>
 
             final ActivityListRowAdapter that = this;
             final int pos = position;
-            final String ItemText = getItem(position);
+            final String itemText = getItem(position);
 
             holder.btn.setOnClickListener(new View.OnClickListener()
             {
@@ -97,11 +97,11 @@ public class ActivityListRowAdapter extends ArrayAdapter<String>
                     String Activity;
                     String SubActivity = null;
 
-                    if(ItemText.indexOf('-') == -1) {
-                        Activity = ItemText;
+                    if(itemText.indexOf('-') == -1) {
+                        Activity = itemText;
                     } else {
-                        Activity = ItemText.substring(0, ItemText.indexOf(" -"));
-                        SubActivity = ItemText.substring(ItemText.indexOf("- ") + 2);
+                        Activity = itemText.substring(0, itemText.indexOf(" -"));
+                        SubActivity = itemText.substring(itemText.indexOf("- ") + 2);
                     }
 
                     int aId = Integer.parseInt(DatabaseHelper.getStringResultSet("SELECT id FROM " + SQLTableName.ACTIVITIES + " WHERE name = ? ", new String[]{ Activity }).get(0));
@@ -121,9 +121,9 @@ public class ActivityListRowAdapter extends ArrayAdapter<String>
                     }
 
                     // Remove from UI
-                    that.remove(that.getItem(pos));
+                    that.remove(itemText);
                     that.notifyDataSetChanged();
-                    BroadcastService.getInstance().sendMessage("/database/response/deleteActivity", ItemText);
+                    BroadcastService.getInstance().sendMessage("/database/response/deleteActivity", itemText);
                 }
             });
         }

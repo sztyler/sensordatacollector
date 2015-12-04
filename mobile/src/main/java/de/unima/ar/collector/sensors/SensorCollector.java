@@ -110,7 +110,7 @@ abstract public class SensorCollector implements SensorEventListener
     }
 
 
-    public static void flushDBCache()
+    public static void flushDBCache(String deviceID)
     {
         throw new IllegalStateException("Method hasn't been set up in the subclass");
     }

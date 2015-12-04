@@ -1,8 +1,12 @@
 package de.unima.ar.collector.ui.dialog;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -17,22 +21,23 @@ import java.util.Locale;
 
 import de.unima.ar.collector.MainActivity;
 import de.unima.ar.collector.R;
-import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.ui.DatePickerListener;
 import de.unima.ar.collector.ui.TimePickerListener;
 import de.unima.ar.collector.util.PlotConfiguration;
 
 
-public class DatabaseSensorDialog extends Dialog implements android.view.View.OnClickListener
+/**
+ * @author Fabian Kramm
+ */
+@SuppressLint("InflateParams")
+public class DatabaseSensorDialog extends DialogFragment
 {
-    private Context           context;
+    private MainActivity      context;
     private PlotConfiguration pc;
 
 
-    public DatabaseSensorDialog(Context context)
+    public void setContext(MainActivity context)
     {
-        super(context, R.style.MyActivityDialogTheme);
-
         this.context = context;
     }
 
@@ -43,90 +48,107 @@ public class DatabaseSensorDialog extends Dialog implements android.view.View.On
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see android.support.v4.app.DialogFragment#onCreateDialog(android.os.Bundle)
+     */
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.databasesensordialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        Button positive = (Button) findViewById(R.id.btn_yes);
-        positive.setOnClickListener(this);
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        builder.setTitle(getString(R.string.analyze_analyze_database_dialog_title));
 
-        Button negative = (Button) findViewById(R.id.btn_no);
-        negative.setOnClickListener(this);
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View view = inflater.inflate(R.layout.databasesensordialog, null);
 
-        setTitle(context.getString(R.string.analyze_analyze_database_dialog_title));
+        builder.setView(view);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.ENGLISH);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.ENGLISH);
 
-        EditText fromDate = (EditText) findViewById(R.id.databasefromdate);
+        final EditText fromDate = (EditText) view.findViewById(R.id.databasefromdate);
         fromDate.setInputType(EditorInfo.TYPE_NULL);
         fromDate.setText(dateFormat.format(new Date(new Date().getTime() - 86400000)));
-        fromDate.setOnClickListener(new DatePickerListener(this.context, fromDate));
+        fromDate.setOnClickListener(new DatePickerListener(getActivity(), fromDate));
 
-        EditText fromTime = (EditText) findViewById(R.id.databasefromtime);
+        final EditText fromTime = (EditText) view.findViewById(R.id.databasefromtime);
         fromTime.setInputType(EditorInfo.TYPE_NULL);
         fromTime.setText(timeFormat.format(new Date(new Date().getTime() - 86400000)));
-        fromTime.setOnClickListener(new TimePickerListener(this.context, fromTime));
+        fromTime.setOnClickListener(new TimePickerListener(getActivity(), fromTime));
 
-        EditText toDate = (EditText) findViewById(R.id.databasetodate);
+        final EditText toDate = (EditText) view.findViewById(R.id.databasetodate);
         toDate.setInputType(EditorInfo.TYPE_NULL);
         toDate.setText(dateFormat.format(new Date(new Date().getTime() + 60000)));
-        toDate.setOnClickListener(new DatePickerListener(this.context, toDate));
+        toDate.setOnClickListener(new DatePickerListener(getActivity(), toDate));
 
-        EditText toTime = (EditText) findViewById(R.id.databasetotime);
+        final EditText toTime = (EditText) view.findViewById(R.id.databasetotime);
         toTime.setInputType(EditorInfo.TYPE_NULL);
         toTime.setText(timeFormat.format(new Date(new Date().getTime() + 60000)));
-        toTime.setOnClickListener(new TimePickerListener(this.context, toTime));
+        toTime.setOnClickListener(new TimePickerListener(getActivity(), toTime));
 
-        CheckBox showActivities = (CheckBox) findViewById(R.id.showActivitiesChkBx);
+        builder.setPositiveButton(R.string.dialog_ok, null);
+
+        builder.setNegativeButton(R.string.dialog_cancel, new DialogInterface.OnClickListener()
+        {
+            public void onClick(DialogInterface dialog, int id)
+            {
+
+            }
+        });
+
+        final AlertDialog d = builder.create();
+
+        final CheckBox showActivities = (CheckBox) view.findViewById(R.id.showActivitiesChkBx);
         showActivities.setChecked(true);
 
-        CheckBox showPositions = (CheckBox) findViewById(R.id.showPositionsChkBx);
+        final CheckBox showPositions = (CheckBox) view.findViewById(R.id.showPositionsChkBx);
         showPositions.setChecked(true);
 
-        CheckBox showPostures = (CheckBox) findViewById(R.id.showPosturesChkBx);
+        final CheckBox showPostures = (CheckBox) view.findViewById(R.id.showPosturesChkBx);
         showPostures.setChecked(true);
-    }
 
+        d.setOnShowListener(new DialogInterface.OnShowListener()
+        {
+            @Override
+            public void onShow(DialogInterface arg0)
+            {
+                Button b = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                b.setOnClickListener(new View.OnClickListener()
+                {
+                    public void onClick(View arg0)
+                    {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH);
 
-    @Override
-    public void onClick(View v)
-    {
-        switch(v.getId()) {
-            case R.id.btn_yes:
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH);
+                        String fromString = fromDate.getText().toString() + " " + fromTime.getText().toString();
+                        String toString = toDate.getText().toString() + " " + toTime.getText().toString();
 
-                String fromString = ((EditText) findViewById(R.id.databasefromdate)).getText().toString() + " " + ((EditText) findViewById(R.id.databasefromtime)).getText().toString();
-                String toString = ((EditText) findViewById(R.id.databasetodate)).getText().toString() + " " + ((EditText) findViewById(R.id.databasetotime)).getText().toString();
+                        long lFromTime = 0;
+                        long lToTime = 0;
 
-                long lFromTime, lToTime;
+                        try {
+                            lFromTime = sdf.parse(fromString).getTime();
+                            lToTime = sdf.parse(toString).getTime();
 
-                try {
-                    lFromTime = sdf.parse(fromString).getTime();
-                    lToTime = sdf.parse(toString).getTime();
+                            if(lFromTime == lToTime || lFromTime > lToTime) {
+                                Toast.makeText(d.getContext(), getString(R.string.analyze_analyze_database_dialog_notify1), Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        } catch(ParseException e1) {
+                            Toast.makeText(d.getContext(), getString(R.string.analyze_analyze_database_dialog_notify2), Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
-                    if(lFromTime == lToTime || lFromTime > lToTime) {
-                        Toast.makeText(context, context.getString(R.string.analyze_analyze_database_dialog_notify1), Toast.LENGTH_LONG).show();
-                        return;
+                        context.showAnalyzeDatabaseData(pc, String.valueOf(lFromTime), String.valueOf(lToTime), showActivities.isChecked(), showPositions.isChecked(), showPostures.isChecked());
+                        d.dismiss();
                     }
-                } catch(ParseException e1) {
-                    Toast.makeText(context, context.getString(R.string.analyze_analyze_database_dialog_notify2), Toast.LENGTH_LONG).show();
-                    return;
-                }
+                });
 
-                MainActivity main = (MainActivity) ActivityController.getInstance().get("MainActivity");
-                main.showAnalyzeDatabaseData(pc, String.valueOf(lFromTime), String.valueOf(lToTime), ((CheckBox) findViewById(R.id.showActivitiesChkBx)).isChecked(), ((CheckBox) findViewById(R.id.showPositionsChkBx)).isChecked(), ((CheckBox) findViewById(R.id.showPosturesChkBx)).isChecked());
+            }
+        });
 
-                dismiss();
-                break;
-            case R.id.btn_no:
-                dismiss();
-                break;
-            default:
-                break;
-        }
-        dismiss();
+        return d;
     }
 }

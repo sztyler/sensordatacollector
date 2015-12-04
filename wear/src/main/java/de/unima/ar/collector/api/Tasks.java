@@ -1,6 +1,7 @@
 package de.unima.ar.collector.api;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,10 +14,10 @@ import de.unima.ar.collector.MainActivity;
 import de.unima.ar.collector.R;
 import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.database.SQLDBController;
+import de.unima.ar.collector.sensors.SensorDataUtil;
 import de.unima.ar.collector.sensors.SensorService;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.util.DeviceID;
-import de.unima.ar.collector.shared.util.Utils;
 import de.unima.ar.collector.ui.ActivitySelector;
 import de.unima.ar.collector.ui.Chooser;
 
@@ -26,7 +27,7 @@ public class Tasks
     {
         MainActivity ma = (MainActivity) ActivityController.getInstance().get("MainActivity");
 
-        if(ma != null) {
+        if(ma != null && BluetoothAdapter.getDefaultAdapter() != null) {
             BroadcastService.getInstance().sendMessage("/activity/started", DeviceID.get(ma) + "~#X*X#~" + BluetoothAdapter.getDefaultAdapter().getAddress());
             return;
         }
@@ -74,7 +75,7 @@ public class Tasks
 
     protected static void registerSensor(byte[] data)
     {
-        if(Settings.WEARSENSORDISABLED) {
+        if(!Settings.WEARSENSOR) {
             return;
         }
 
@@ -83,6 +84,7 @@ public class Tasks
             int type = Integer.valueOf(values[0]);
             int rate = Integer.valueOf(values[1]);
 
+            Log.d("TIMOSENSOR", "AN");
             SensorService.getInstance().enableCollector(type, rate);
             SensorService.getInstance().registerCollectors();
         } catch(UnsupportedEncodingException e) {
@@ -97,8 +99,10 @@ public class Tasks
             String value = new String(data, "UTF-8");
             int type = Integer.valueOf(value);
 
+            Log.d("TIMOSENSOR", "AUS");
             SensorService.getInstance().getSCM().unregisterCollector(type);
             SensorService.getInstance().getSCM().disableCollector(type);
+            SensorDataUtil.flushSensorDataCache(type);
         } catch(UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -116,7 +120,7 @@ public class Tasks
     }
 
 
-    protected static void deleteDatabase()
+    protected static void deleteDatabase(Context context)
     {
         SQLDBController sc = SQLDBController.getInstance();
         if(sc == null) {
@@ -124,17 +128,56 @@ public class Tasks
         }
 
         sc.deleteDatabase();
+        Toast.makeText(context, R.string.database_delete, Toast.LENGTH_SHORT).show();
 
         MainActivity activity = (MainActivity) ActivityController.getInstance().get("MainActivity");
         if(activity == null) {
             return;
         }
-        Utils.makeToast(activity, R.string.database_delete, Toast.LENGTH_SHORT);
 
         activity.updatePositionView("");
         activity.updatePostureView("");
         ActivitySelector.delete();
         activity.updateActivityView("");
+    }
+
+
+    protected static void updateSettings(Context context, byte[] data)
+    {
+        try {
+            String[] values = new String(data, "UTF-8").replace("[", "").replace("]", "").replace(" ", "").split(",");
+            String parameter = values[0];
+            String value = values[1];
+
+            switch(parameter) {
+                case "WEARSENSOR":
+                    Log.d("TIMOSENSOR", "WEARSENSOR STATE CHANGED");
+                    Settings.WEARSENSOR = Boolean.parseBoolean(value);              // Update Settings
+                    SensorService.getInstance().getSCM().unregisterCollectors();    // Stop all sensors
+                    SensorDataUtil.flushSensorDataCache(0);                         // Write cache to database and force DBObserver
+                    if(Settings.WEARSENSOR) {
+                        Toast.makeText(context, R.string.preferences_sensors_enabled, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, R.string.preferences_sensors_disabled, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case "WEARTRANSFERDIRECT":
+                    Log.d("TIMOSENSOR", "WEARTRANSFERDIRECT STATE CHANGED");
+                    SensorService.getInstance().getSCM().unregisterCollectors();    // Not necessary but just to be sure
+                    SensorDataUtil.flushSensorDataCache(0);                         // there are only data if it is turned off
+                    Settings.WEARTRANSFERDIRECT = Boolean.parseBoolean(value);             // change state
+                    if(Settings.WEARTRANSFERDIRECT) {
+                        Toast.makeText(context, R.string.preferences_directtransfer_enabled, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, R.string.preferences_directtransfer_disabled, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                default:
+                    // nothing
+            }
+        } catch(UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
 

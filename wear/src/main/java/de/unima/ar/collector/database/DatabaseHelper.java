@@ -12,6 +12,7 @@ import de.unima.ar.collector.sensors.collectors.MagnetometerCollector;
 import de.unima.ar.collector.sensors.collectors.OrientationCollector;
 import de.unima.ar.collector.sensors.collectors.PressureCollector;
 import de.unima.ar.collector.sensors.collectors.RotationVectorCollector;
+import de.unima.ar.collector.sensors.collectors.StepCounterCollector;
 import de.unima.ar.collector.sensors.collectors.StepDetectorCollector;
 import de.unima.ar.collector.shared.database.SQLTableName;
 
@@ -78,5 +79,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         PressureCollector.createDBStorage(deviceID);
         RotationVectorCollector.createDBStorage(deviceID);
         StepDetectorCollector.createDBStorage(deviceID);
+        StepCounterCollector.createDBStorage(deviceID);
     }
 }

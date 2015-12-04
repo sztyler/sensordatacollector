@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import de.unima.ar.collector.controller.SQLDBController;
-import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 
 public class DBUtils
@@ -43,7 +42,7 @@ public class DBUtils
     }
 
 
-    public static List<String[]> manageCache(String deviceID, Map<String, List<String[]>> cache, ContentValues newValues)
+    public static List<String[]> manageCache(String deviceID, Map<String, List<String[]>> cache, ContentValues newValues, int cacheSize)
     {
         if(!cache.containsKey(deviceID)) {
             cache.put(deviceID, new ArrayList<String[]>());
@@ -60,14 +59,14 @@ public class DBUtils
         }
         cache.get(deviceID).add(entry);
 
-        if(cache.get(deviceID).size() <= Settings.DATABASE_CACHE_SIZE) {
+        if(cache.get(deviceID).size() <= cacheSize) {
             return null;
         }
 
-        List<String[]> clone = cache.get(deviceID).subList(0, Settings.DATABASE_CACHE_SIZE + 1);
+        List<String[]> clone = cache.get(deviceID).subList(0, cacheSize + 1);
 
-        if(cache.get(deviceID).size() > Settings.DATABASE_CACHE_SIZE + 1) {
-            cache.put(deviceID, cache.get(deviceID).subList(Settings.DATABASE_CACHE_SIZE + 1, cache.get(deviceID).size()));
+        if(cache.get(deviceID).size() > cacheSize + 1) {
+            cache.put(deviceID, cache.get(deviceID).subList(cacheSize + 1, cache.get(deviceID).size()));
         } else {
             cache.put(deviceID, new ArrayList<String[]>());
         }
@@ -77,23 +76,21 @@ public class DBUtils
     }
 
 
-    public static void flushCache(String sqlTableName, Map<String, List<String[]>> cache)
+    public static void flushCache(String sqlTableName, Map<String, List<String[]>> cache, String deviceID)
     {
         if(cache.keySet().size() == 0) {
             return;
         }
 
-        for(String deviceID : cache.keySet()) {
-            List<String[]> values = cache.get(deviceID);
-            if(values.size() <= 1) {
-                continue;
-            }
-
-            String tableName = SQLTableName.PREFIX + deviceID + sqlTableName;
-            SQLDBController.getInstance().bulkInsert(tableName, values);
+        List<String[]> values = cache.get(deviceID);
+        if(values.size() <= 1) {
+            return;
         }
 
-        cache.clear();
+        String tableName = SQLTableName.PREFIX + deviceID + sqlTableName;
+        SQLDBController.getInstance().bulkInsert(tableName, values);
+
+        cache.remove(deviceID);
     }
 
 

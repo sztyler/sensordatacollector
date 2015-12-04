@@ -115,6 +115,12 @@ public class SensorManager
     }
 
 
+    public Set<Integer> getImplementedSensors()
+    {
+        return this.collectors.keySet();
+    }
+
+
     private boolean addCollector(int type)
     {
         Collector col = CollectorFactory.getCollector(type);

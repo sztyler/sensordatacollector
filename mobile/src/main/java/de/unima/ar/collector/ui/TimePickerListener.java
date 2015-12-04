@@ -1,34 +1,34 @@
 package de.unima.ar.collector.ui;
 
-import java.util.Calendar;
-
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TimePicker;
 
+import java.util.Calendar;
+
 
 /**
  * @author Fabian Kramm
- *
  */
 public class TimePickerListener implements View.OnClickListener
 {
-    private EditText                                 edittext;
-    private Context                                  context;
-    private final TimePickerDialog.OnTimeSetListener timePickerListener = new TimePickerDialog.OnTimeSetListener() {
-                                                                            @Override
-                                                                            public void onTimeSet(TimePicker view, int hourOfDay, int minutes)
-                                                                            {
-                                                                                String[] time = new String[2];
+    private EditText edittext;
+    private Context  context;
+    private final TimePickerDialog.OnTimeSetListener timePickerListener = new TimePickerDialog.OnTimeSetListener()
+    {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minutes)
+        {
+            String[] time = new String[2];
 
-                                                                                time[0] = (hourOfDay < 10) ? "0" + hourOfDay : "" + hourOfDay;
-                                                                                time[1] = (minutes < 10) ? "0" + minutes : "" + minutes;
+            time[0] = (hourOfDay < 10) ? "0" + hourOfDay : "" + hourOfDay;
+            time[1] = (minutes < 10) ? "0" + minutes : "" + minutes;
 
-                                                                                edittext.setText(time[0] + ":" + time[1]);
-                                                                            }
-                                                                        };
+            edittext.setText(time[0] + ":" + time[1]);
+        }
+    };
 
 
     public TimePickerListener(Context context, EditText edittext)
@@ -38,20 +38,18 @@ public class TimePickerListener implements View.OnClickListener
     }
 
 
-    public EditText getEditText()
-    {
-        return edittext;
-    }
+    //    public EditText getEditText()
+    //    {
+    //        return edittext;
+    //    }
 
-
-    /*
-     * (non-Javadoc)
-     * @see android.view.View.OnClickListener#onClick(android.view.View)
-     */
+    
     @Override
     public void onClick(View v)
     {
-        if(edittext == null) { return; }
+        if(edittext == null) {
+            return;
+        }
 
         String[] time;
 
@@ -67,5 +65,5 @@ public class TimePickerListener implements View.OnClickListener
         TimePickerDialog dialog = new TimePickerDialog(context, timePickerListener, Integer.parseInt(time[0]), Integer.parseInt(time[1]), true);
 
         dialog.show();
-   }
+    }
 }

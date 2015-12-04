@@ -89,7 +89,7 @@ public class MainActivity extends Activity
         super.onPause();
 
         // update state
-        if(ActivityController.getInstance().getState(this).equals(ActivityController.State.onCreate)) {
+        if(ActivityController.State.onCreate.equals(ActivityController.getInstance().getState(this))) {
             ActivityController.getInstance().setState(this, ActivityController.State.onPause_AUTO);
         }
 
@@ -166,7 +166,7 @@ public class MainActivity extends Activity
             public void run()
             {
                 TextView posture = (TextView) findViewById(R.id.posture_posture);
-                if(posture != null && value.length() != 0 && !value.equalsIgnoreCase(getString(R.string.activity_general_notspecified))) {
+                if(value.length() != 0 && !value.equalsIgnoreCase(getString(R.string.activity_general_notspecified)) && posture != null) {
                     posture.setText(value);
                     posture.setTextColor(Color.GREEN);
                 } else if(posture != null) {
@@ -186,7 +186,7 @@ public class MainActivity extends Activity
             public void run()
             {
                 TextView position = (TextView) findViewById(R.id.posture_position);
-                if(position != null && value.length() != 0 && !value.equalsIgnoreCase(getString(R.string.activity_general_notspecified))) {
+                if(value.length() != 0 && !value.equalsIgnoreCase(getString(R.string.activity_general_notspecified)) && position != null) {
                     position.setText("(" + value + ")");
                     position.setTextColor(Color.GREEN);
                 } else if(position != null) {
@@ -209,16 +209,13 @@ public class MainActivity extends Activity
                 List<String> activites = ActivitySelector.get();
 
                 TextView position = (TextView) findViewById(R.id.posture_activity);
-                if(position == null) {
-                    return;
-                }
-                if(activites.size() == 1) {
+                if(activites.size() == 1 && position != null) {
                     position.setText("(" + activites.get(0) + ")");
                     position.setTextColor(Color.GREEN);
-                } else if(activites.size() > 1) {
+                } else if(activites.size() > 1 && position != null) {
                     position.setText("(" + activites.size() + " " + getString(R.string.activity_general_activities) + ")");
                     position.setTextColor(Color.GREEN);
-                } else {
+                } else if(position != null) {
                     position.setText("(" + getString(R.string.activity_general_notspecified) + ")");
                     position.setTextColor(Color.RED);
                 }

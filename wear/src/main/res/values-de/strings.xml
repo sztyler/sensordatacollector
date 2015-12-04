@@ -20,6 +20,12 @@
     <string name="activity_general_activities">Aktivitäten</string>
 
     <string name="broadcast_outofrange">Achtung! Das Smartphone scheint außer Reichweite!</string>
+    <string name="sending_error">Warnung! Daten konnten nicht übertragen werden. Erneuter Versuch&#8230;</string>
 
     <string name="database_delete">Datenbank wurde gelöscht!</string>
+
+    <string name="preferences_directtransfer_enabled">\'Sofortige Übertragung\' aktiviert</string>
+    <string name="preferences_directtransfer_disabled">\'Sofortige Übertragung\' deaktiviert</string>
+    <string name="preferences_sensors_enabled">\'Sensordaten aufzeichnen\' aktiviert</string>
+    <string name="preferences_sensors_disabled">\'Sensordaten aufzeichnen\' deaktiviert</string>
 </resources>

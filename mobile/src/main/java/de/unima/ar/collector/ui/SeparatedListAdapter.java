@@ -1,10 +1,5 @@
 package de.unima.ar.collector.ui;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import de.unima.ar.collector.R;
-
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.view.View;
@@ -13,31 +8,32 @@ import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-/**
- * @author Jeff Sharkey
- * @url http://jsharkey.org/blog/2008/08/18/separating-lists-with-headers-in-android-09/
- *
- */
+import de.unima.ar.collector.R;
+
+
 public class SeparatedListAdapter extends BaseAdapter
 {
-    public final Map<String, Adapter> sections            = new LinkedHashMap<String, Adapter>();
+    public final Map<String, Adapter> sections = new LinkedHashMap<>();
     public final ArrayAdapter<String> headers;
-    public final static int           TYPE_SECTION_HEADER = 0;
-    public DataSetObserver            observer            = new DataSetObserver() {
-                                                              public void onChanged()
-                                                              {
-                                                                  notifyDataSetChanged();
-                                                              }
+    public final static int             TYPE_SECTION_HEADER = 0;
+    public              DataSetObserver observer            = new DataSetObserver()
+    {
+        public void onChanged()
+        {
+            notifyDataSetChanged();
+        }
 
 
-                                                              public void onInvalidated()
-                                                              {
-                                                                  notifyDataSetInvalidated();
-                                                              }
-                                                          };
+        public void onInvalidated()
+        {
+            notifyDataSetInvalidated();
+        }
+    };
 
-    private int                       maxPosition         = 0;
+    private int maxPosition = 0;
 
 
     public SeparatedListAdapter(Context context, int maxPosition)
@@ -57,7 +53,7 @@ public class SeparatedListAdapter extends BaseAdapter
 
     public Object getItem(int position)
     {
-        for(Object section : this.sections.keySet()) {
+        for(String section : this.sections.keySet()) {
             Adapter adapter = sections.get(section);
             int size = adapter.getCount() + 1;
 
@@ -107,7 +103,7 @@ public class SeparatedListAdapter extends BaseAdapter
     public int getItemViewType(int position)
     {
         int type = 1;
-        for(Object section : this.sections.keySet()) {
+        for(String section : this.sections.keySet()) {
             Adapter adapter = sections.get(section);
             int size = adapter.getCount() + 1;
 
@@ -125,10 +121,10 @@ public class SeparatedListAdapter extends BaseAdapter
     }
 
 
-    public boolean areAllItemsSelectable()
-    {
-        return false;
-    }
+    //    public boolean areAllItemsSelectable()
+    //    {
+    //        return false;
+    //    }
 
 
     /*
@@ -150,7 +146,7 @@ public class SeparatedListAdapter extends BaseAdapter
     public View getView(int position, View convertView, ViewGroup parent)
     {
         int sectionnum = 0;
-        for(Object section : this.sections.keySet()) {
+        for(String section : this.sections.keySet()) {
             Adapter adapter = sections.get(section);
             int size = adapter.getCount() + 1;
 

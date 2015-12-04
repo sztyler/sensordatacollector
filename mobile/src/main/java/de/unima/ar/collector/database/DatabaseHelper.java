@@ -29,6 +29,7 @@ import de.unima.ar.collector.sensors.PressureSensorCollector;
 import de.unima.ar.collector.sensors.ProximitySensorCollector;
 import de.unima.ar.collector.sensors.RelativeHumiditySensorCollector;
 import de.unima.ar.collector.sensors.RotationVectorSensorCollector;
+import de.unima.ar.collector.sensors.StepCounterSensorCollector;
 import de.unima.ar.collector.sensors.StepDetectorSensorCollector;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.util.UIUtils;
@@ -50,10 +51,10 @@ public class DatabaseHelper extends SQLiteOpenHelper
     private static final String sqlTablePostures           = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSTURES + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)";
     private static final String sqlTablePositions          = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSITIONS + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)";
     private static final String sqlTableDevicePosition     = "CREATE TABLE IF NOT EXISTS " + SQLTableName.DEVICEPOSITION + " (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE)";
-    private static final String sqlTableActivityData       = "CREATE TABLE IF NOT EXISTS " + SQLTableName.ACTIVITYDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, activityid INT NOT NULL, subactivityid INT, starttime INT, endtime INT)";
-    private static final String sqlTablePostureData        = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSTUREDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOT NULL, starttime INT, endtime INT)";
-    private static final String sqlTablePositionData       = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSITIONDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOT NULL, starttime INT, endtime INT)";
-    private static final String sqlTableDevicePositionData = "CREATE TABLE IF NOT EXISTS " + SQLTableName.DEVICEPOSITIONDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOT NULL, starttime INT, endtime INT)";
+    private static final String sqlTableActivityData       = "CREATE TABLE IF NOT EXISTS " + SQLTableName.ACTIVITYDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, activityid INT NOL NULL, subactivityid INT, starttime INT, endtime INT)";
+    private static final String sqlTablePostureData        = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSTUREDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOL NULL, starttime INT, endtime INT)";
+    private static final String sqlTablePositionData       = "CREATE TABLE IF NOT EXISTS " + SQLTableName.POSITIONDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOL NULL, starttime INT, endtime INT)";
+    private static final String sqlTableDevicePositionData = "CREATE TABLE IF NOT EXISTS " + SQLTableName.DEVICEPOSITIONDATA + " (id INTEGER PRIMARY KEY AUTOINCREMENT, pid INT NOL NULL, starttime INT, endtime INT)";
     private static final String sqlTableDevices            = "CREATE TABLE IF NOT EXISTS " + SQLTableName.DEVICES + " (id INTEGER PRIMARY KEY AUTOINCREMENT, device INT UNIQUE NOT NULL, lastseen INT NOT NULL)";
     private static final String sqlTableActivityCorrection = "CREATE TABLE IF NOT EXISTS " + SQLTableName.ACTIVITYCORRECTION + "(id INTEGER PRIMARY KEY AUTOINCREMENT, starttime INT, endtime INT, log VARCHAR(255))";
 
@@ -133,6 +134,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         RelativeHumiditySensorCollector.createDBStorage(deviceID);
         RotationVectorSensorCollector.createDBStorage(deviceID);
         StepDetectorSensorCollector.createDBStorage(deviceID);
+        StepCounterSensorCollector.createDBStorage(deviceID);
     }
 
 
@@ -257,7 +259,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
         // Postures
         //        String[] postures = UIUtils.getString(R.string.activity_posture_idling, R.string.activity_posture_walking, R.string.activity_posture_cycling, R.string.activity_posture_driving, R.string.activity_posture_running, R.string.activity_posture_sitting, R.string.activity_posture_standing, R.string.activity_posture_stairsup, R.string.activity_posture_stairsdown);
-        String[] postures = UIUtils.getString(R.string.activity_posture_none, R.string.activity_posture_walking, R.string.activity_posture_running, R.string.activity_posture_sitting, R.string.activity_posture_standing, R.string.activity_posture_recumbency, R.string.activity_posture_climbingup, R.string.activity_posture_climbingdown, R.string.activity_posture_jumping);
+        String[] postures = UIUtils.getString(R.string.activity_posture_none, R.string.activity_posture_walking, R.string.activity_posture_running, R.string.activity_posture_sitting, R.string.activity_posture_standing, R.string.activity_posture_lying, R.string.activity_posture_climbingup, R.string.activity_posture_climbingdown, R.string.activity_posture_jumping);
         List<String> existPostures = DatabaseHelper.getStringResultSet("SELECT name FROM " + SQLTableName.POSTURES, null);
         for(String posture : postures) {
             if(existPostures.contains(posture)) {

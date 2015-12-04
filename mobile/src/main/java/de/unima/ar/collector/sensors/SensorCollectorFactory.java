@@ -53,6 +53,8 @@ public class SensorCollectorFactory
                 return new OrientationSensorCollector(sensor);
             case "TYPE_STEP_DETECTOR":
                 return new StepDetectorSensorCollector(sensor);
+            case "TYPE_STEP_COUNTER":
+                return new StepCounterSensorCollector(sensor);
         }
 
         return null;

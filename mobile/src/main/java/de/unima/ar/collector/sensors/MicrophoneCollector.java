@@ -10,33 +10,41 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.extended.Plotter;
+import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
 import de.unima.ar.collector.util.PlotConfiguration;
 
 
 /**
- * @author Fabian Kramm, Timo Sztyler
+ * @author Timo Sztyler, Fabian Kramm
  */
 public class MicrophoneCollector extends CustomCollector
 {
     private static final int      type       = -2;
     private static final String[] valueNames = new String[]{ "attr_db", "attr_time" };
 
-    private static Map<String, Plotter> plotters = new HashMap<>();
+    private Timer timer;
+    //    private MediaRecorder mRecorder = null;
 
-    private       MediaRecorder mRecorder = null;
-    public static double        REFERENCE = 0.00002;
+    public static  double               REFERENCE = 0.00002;
+    private static Map<String, Plotter> plotters  = new HashMap<>();
 
 
     public MicrophoneCollector()
     {
         super();
+
+        if(this.sensorRate < 0) {
+            this.sensorRate = Settings.MICRO_DEFAULT_FREQUENCY;
+        }
 
         // create new plotter
         List<String> devices = DatabaseHelper.getStringResultSet("SELECT device FROM " + SQLTableName.DEVICES, null);
@@ -49,6 +57,16 @@ public class MicrophoneCollector extends CustomCollector
     @Override
     public void onRegistered()
     {
+        this.timer = new Timer();
+        this.timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                doTask();
+            }
+        }, 0, getSensorRate());
+
         /*
          * if (mRecorder == null) { mRecorder = new MediaRecorder();
          * mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -59,23 +77,23 @@ public class MicrophoneCollector extends CustomCollector
          * (IOException e) { e.printStackTrace(); } mRecorder.start(); }
          * //
          */
-
     }
 
 
     @Override
     public void onDeRegistered()
     {
+        this.timer.cancel();
+
         // ar.stop();
-        if(mRecorder != null) {
-            mRecorder.stop();
-            mRecorder.release();
-            mRecorder = null;
-        }
+        //        if(mRecorder != null) {
+        //            mRecorder.stop();
+        //            mRecorder.release();
+        //            mRecorder = null;
+        //        }
     }
 
 
-    @Override
     public void doTask()
     {
         // http://stackoverflow.com/questions/10655703/what-does-androids-getmaxamplitude-function-for-the-mediarecorder-actually-gi
@@ -198,7 +216,7 @@ public class MicrophoneCollector extends CustomCollector
 
     public static void createDBStorage(String deviceID)
     {
-        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.MICROPHONE + " (id INTEGER PRIMARY KEY, " + valueNames[1] + " INTEGER UNIQUE, " + valueNames[0] + " REAL)";
+        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.MICROPHONE + " (id INTEGER PRIMARY KEY, " + valueNames[1] + " INTEGER, " + valueNames[0] + " REAL)";
         SQLDBController.getInstance().execSQL(sqlTable);
     }
 

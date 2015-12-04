@@ -150,18 +150,18 @@ public class SQLDBController
     }
 
 
-    public long replace(String table, String nullColumnHack, ContentValues initValues)
-    {
-        long result;
-
-        synchronized(databaseLock) {
-            SQLiteDatabase database = databaseHelper.getWritableDatabase();
-            result = database.replace(table, nullColumnHack, initValues);
-            //            database.close();
-        }
-
-        return result;
-    }
+    //    public long replace(String table, String nullColumnHack, ContentValues initValues)
+    //    {
+    //        long result;
+    //
+    //        synchronized(databaseLock) {
+    //            SQLiteDatabase database = databaseHelper.getWritableDatabase();
+    //            result = database.replace(table, nullColumnHack, initValues);
+    //            //            database.close();
+    //        }
+    //
+    //        return result;
+    //    }
 
 
     public void execSQL(String sql)

@@ -1,39 +1,29 @@
 package de.unima.ar.collector.sensors;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.extended.Plotter;
-import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 
 
 /**
- * @author Fabian Kramm
+ * @author Timo Sztyler, Fabian Kramm
  */
 abstract public class CustomCollector
 {
-    private int   sensorRate;
-    private Timer timer;
-
-    public boolean isRegistered = false;
+    protected long sensorRate;  // milliseconds
+    private boolean isRegistered = false;
 
 
     public CustomCollector()
     {
         String queryString = "SELECT freq FROM " + SQLTableName.SENSOROPTIONS + " WHERE sensor = ? ";
-        String[] queryArgs = new String[]{ "" + getType() };
+        String[] queryArgs = new String[]{ String.valueOf(getType()) };
 
         List<String[]> result = SQLDBController.getInstance().query(queryString, queryArgs, false);
 
-        //        sensorRate = (result.size() != 0) ? Integer.valueOf(result.get(0)[0]) : 300;
-        //
-        //        if(sensorRate < 50) {
-        //            sensorRate = 50;
-        //        }
-        sensorRate = 5000;
+        this.sensorRate = (result.size() != 0) ? Long.valueOf(result.get(0)[0]) : -1l; // milliseconds
     }
 
 
@@ -44,56 +34,36 @@ abstract public class CustomCollector
     }
 
 
-    public void setSensorRate(int hertz)
+    public void setSensorRate(long milliseconds)
     {
-        this.sensorRate = (int) ((1000.0d / hertz) * 1000.0d); // hertz -> microseconds
+        this.sensorRate = milliseconds;
     }
 
 
     public long getSensorRate()
     {
-        return Settings.GPS_DEFAULT_FREQUENCY;
+        return this.sensorRate; // milliseconds
     }
 
 
     public boolean isRegistered()
     {
-        return isRegistered;
+        return this.isRegistered;
     }
 
 
     public void deregister()
     {
-//        this.timer.cancel();
-
-        onDeRegistered();
         this.isRegistered = false;
+        onDeRegistered();
     }
-
-
-    //    public abstract boolean plottingEnabled();
 
 
     public abstract void onRegistered();
 
-
     public abstract void onDeRegistered();
-
-
-    public abstract void doTask();
-
 
     public abstract int getType();
 
     public abstract Plotter getPlotter(String deviceID);
-
-
-    private class MyTimerTask extends TimerTask
-    {
-        @Override
-        public void run()
-        {
-            doTask();
-        }
-    }
 }

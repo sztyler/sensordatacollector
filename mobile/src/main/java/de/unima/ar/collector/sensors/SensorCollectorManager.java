@@ -226,7 +226,6 @@ public class SensorCollectorManager
         }
 
         cc.deregister();
-        cc.isRegistered = false;
         return true;
     }
 

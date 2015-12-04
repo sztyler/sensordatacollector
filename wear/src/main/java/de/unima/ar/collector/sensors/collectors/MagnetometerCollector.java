@@ -4,7 +4,12 @@ import android.content.ContentValues;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import de.unima.ar.collector.api.BroadcastService;
+import de.unima.ar.collector.database.DBUtils;
 import de.unima.ar.collector.database.SQLDBController;
 import de.unima.ar.collector.sensors.SensorService;
 import de.unima.ar.collector.shared.Settings;
@@ -19,6 +24,8 @@ public class MagnetometerCollector extends Collector
     private boolean isRegistered = false;
     private int     sensorRate   = 0;
 
+    private static Map<String, List<String[]>> cache = new HashMap<>();
+
 
     @Override
     public void onSensorChanged(SensorEvent event)
@@ -28,7 +35,7 @@ public class MagnetometerCollector extends Collector
 
         String deviceID = DeviceID.get(SensorService.getInstance());
 
-        if(Settings.WEARDIRECTTRANSFER) {
+        if(Settings.WEARTRANSFERDIRECT) {
             String record = valueNames[0] + ";" + values[0] + ";" + valueNames[1] + ";" + values[1] + ";" + valueNames[2] + ";" + values[2] + ";" + valueNames[3] + ";" + time;
             BroadcastService.getInstance().sendMessage("/sensor/data/" + deviceID + "/" + type, record);
         } else {
@@ -94,6 +101,22 @@ public class MagnetometerCollector extends Collector
 
     public static void writeDBStorage(String deviceID, ContentValues newValues)
     {
-        SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.MAGNETIC, null, newValues);
+        String tableName = SQLTableName.PREFIX + deviceID + SQLTableName.MAGNETIC;
+
+        if(Settings.DATABASE_DIRECT_INSERT) {
+            SQLDBController.getInstance().insert(tableName, null, newValues);
+            return;
+        }
+
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
+        if(clone != null) {
+            SQLDBController.getInstance().bulkInsert(tableName, clone);
+        }
+    }
+
+
+    public static void flushDBCache()
+    {
+        DBUtils.flushCache(SQLTableName.MAGNETIC, cache);
     }
 }

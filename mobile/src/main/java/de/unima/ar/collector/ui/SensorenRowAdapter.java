@@ -2,7 +2,6 @@ package de.unima.ar.collector.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -117,19 +116,21 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
                 }
             });
 
-            final int senPos = position;
             viewHolder.selfTest.setOnClickListener(new OnClickListener()
             {
                 @Override
                 public void onClick(View v)
                 {
-                    if(!(context instanceof MainActivity)) {
+                    if(!(context instanceof MainActivity)) {       // TODO why?
                         return;
                     }
 
                     try {
-                        List<String> names = new ArrayList<String>(sensors.keySet());
-                        Sensor s = sensors.get(names.get(senPos));
+                        ListView lv = (ListView) context.findViewById(R.id.mainlist);
+                        int pos = lv.getPositionForView((RelativeLayout) v.getParent());
+
+                        List<String> names = new ArrayList<>(sensors.keySet());
+                        Sensor s = sensors.get(names.get(pos - 1));
 
                         if(s == null) {
                             throw new Exception();
@@ -153,7 +154,7 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
 
         ViewHolder holder = (ViewHolder) rowView.getTag();
 
-        List<String> names = new ArrayList<String>(sensors.keySet());
+        List<String> names = new ArrayList<>(sensors.keySet());
         final Sensor sensor = sensors.get(names.get(position));
 
         // First there are the custom collectors then come the sensor collectors
@@ -178,7 +179,7 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
                     AlertDialog.Builder alert = new AlertDialog.Builder(context);
 
                     alert.setTitle(context.getString(R.string.sensor_frequency_dialog_title));
-                    alert.setMessage(context.getString(R.string.sensor_frequency_dialog_text));
+                    alert.setMessage(context.getText(R.string.sensor_frequency_dialog_text2));
 
                     // Set an EditText view to get user input
                     final EditText input = new EditText(context);
@@ -188,8 +189,8 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
                     String[] queryArgs = new String[]{ String.valueOf(type) };
                     List<String[]> result = SQLDBController.getInstance().query(queryString, queryArgs, false);
 
-                    double frequency = (result.size() != 0) ? Double.valueOf(result.get(0)[0]) : Settings.SENSOR_DEFAULT_FREQUENCY;    // default value: 50ms - 1000ms/50ms = 20hz
-                    input.setText(String.format(Locale.ENGLISH, "%.2f", frequency));  // 1000ms/20hz=50
+                    long milliseconds = (result.size() != 0) ? Long.valueOf(result.get(0)[0]) : SensorDataCollectorService.getInstance().getSCM().getCustomCollectors().get(type).getSensorRate();
+                    input.setText(String.valueOf(milliseconds));    // TODO
 
                     alert.setView(input);
 
@@ -198,14 +199,14 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
                         public void onClick(DialogInterface dialog, int whichButton)
                         {
                             try {
-                                double frequencyNew = Double.parseDouble(input.getText().toString());
-                                DBUtils.updateSensorStatus(type, (int) frequencyNew, 0);
+                                long millisecondsNew = Long.parseLong(input.getText().toString());
+                                DBUtils.updateSensorStatus(type, (int) millisecondsNew, 0);
 
                                 CustomCollector sc = SensorDataCollectorService.getInstance().getSCM().getCustomCollectors().get(type);
-                                sc.setSensorRate((int) frequencyNew);
+                                sc.setSensorRate(millisecondsNew);
 
-                                String hertz = String.format(Locale.ENGLISH, "%.2f", (frequencyNew));
-                                Toast.makeText(context, context.getString(R.string.sensor_frequency_changed_success) + " (" + hertz + "Hz)", Toast.LENGTH_LONG).show();
+                                String hertz = String.valueOf(millisecondsNew);
+                                Toast.makeText(context, context.getString(R.string.sensor_frequency_changed_success) + " (" + hertz + "ms)", Toast.LENGTH_LONG).show();
                             } catch(NumberFormatException e) {
                                 Toast.makeText(context, context.getString(R.string.sensor_frequency_changed_failed), Toast.LENGTH_LONG).show();
                             }
@@ -248,7 +249,7 @@ public class SensorenRowAdapter extends ArrayAdapter<String>
                     AlertDialog.Builder alert = new AlertDialog.Builder(context);
 
                     alert.setTitle(context.getString(R.string.sensor_frequency_dialog_title));
-                    alert.setMessage(context.getString(R.string.sensor_frequency_dialog_text));
+                    alert.setMessage(context.getText(R.string.sensor_frequency_dialog_text));
 
                     // Set an EditText view to get user input
                     final EditText input = new EditText(context);

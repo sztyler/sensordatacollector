@@ -9,6 +9,7 @@ import de.unima.ar.collector.sensors.collectors.MagnetometerCollector;
 import de.unima.ar.collector.sensors.collectors.OrientationCollector;
 import de.unima.ar.collector.sensors.collectors.PressureCollector;
 import de.unima.ar.collector.sensors.collectors.RotationVectorCollector;
+import de.unima.ar.collector.sensors.collectors.StepCounterCollector;
 import de.unima.ar.collector.sensors.collectors.StepDetectorCollector;
 
 public class CollectorFactory
@@ -34,6 +35,8 @@ public class CollectorFactory
                 return new RotationVectorCollector();
             case 18:
                 return new StepDetectorCollector();
+            case 19:
+                return new StepCounterCollector();
         }
 
         return null;

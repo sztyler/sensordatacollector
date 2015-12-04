@@ -27,7 +27,7 @@ public class ListenerService extends WearableListenerService
         }
 
         if(path.equalsIgnoreCase("/database/delete")) {
-            Tasks.deleteDatabase();
+            Tasks.deleteDatabase(this.getBaseContext());
             return;
         }
 
@@ -43,6 +43,11 @@ public class ListenerService extends WearableListenerService
 
         if(path.startsWith("/sensor/blob/confirm")) {
             Tasks.confirmBlob(path);
+            return;
+        }
+
+        if(path.equalsIgnoreCase("/settings")) {
+            Tasks.updateSettings(this.getBaseContext(), messageEvent.getData());
             return;
         }
 

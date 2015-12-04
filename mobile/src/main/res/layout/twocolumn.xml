@@ -18,7 +18,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:scrollHorizontally="true"
-            android:textColor="#323232"
+            android:textColor="@color/white"
             android:textSize="20sp"/>
 
         <TextView
@@ -29,7 +29,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:scrollHorizontally="true"
-            android:textColor="#323232"
+            android:textColor="@color/white"
             android:layout_gravity="right"
             android:gravity="right"
             android:textSize="20sp"/>

@@ -122,7 +122,7 @@ public class RotationVectorSensorCollector extends SensorCollector
 
     public static void createDBStorage(String deviceID)
     {
-        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.ROTATION + " (id INTEGER PRIMARY KEY, " + valueNames[3] + " INTEGER UNIQUE, " + valueNames[0] + " REAL, " + valueNames[1] + " REAL, " + valueNames[2] + " REAL)";
+        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.ROTATION + " (id INTEGER PRIMARY KEY, " + valueNames[3] + " INTEGER, " + valueNames[0] + " REAL, " + valueNames[1] + " REAL, " + valueNames[2] + " REAL)";
         SQLDBController.getInstance().execSQL(sqlTable);
     }
 
@@ -136,15 +136,15 @@ public class RotationVectorSensorCollector extends SensorCollector
             return;
         }
 
-        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues);
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
         if(clone != null) {
             SQLDBController.getInstance().bulkInsert(tableName, clone);
         }
     }
 
 
-    public static void flushDBCache()
+    public static void flushDBCache(String deviceID)
     {
-        DBUtils.flushCache(SQLTableName.ROTATION, cache);
+        DBUtils.flushCache(SQLTableName.ROTATION, cache, deviceID);
     }
 }

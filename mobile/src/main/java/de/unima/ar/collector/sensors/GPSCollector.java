@@ -2,13 +2,20 @@ package de.unima.ar.collector.sensors;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -27,15 +34,16 @@ import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.extended.Plotter;
+import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
 import de.unima.ar.collector.util.PlotConfiguration;
 
 
 /**
- * @author Fabian Kramm, Timo Sztyler
+ * @author Timo Sztyler, Fabian Kramm
  */
-public class GPSCollector extends CustomCollector
+public class GPSCollector extends CustomCollector implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
     private static final int      type       = -3;
     private static final String[] valueNames = new String[]{ "attr_lat", "attr_lng", "attr_time" };
@@ -46,6 +54,8 @@ public class GPSCollector extends CustomCollector
     private Set<LocationListener> locationListeners;
     private GoogleMap             map;
     private Timer                 timer;
+    private GoogleApiClient       mGoogleApiClient;
+
 
     private Location lastKnownGPSLocation = null; // workaround
     private boolean  CameraMoved          = false;    // TODO?
@@ -56,21 +66,74 @@ public class GPSCollector extends CustomCollector
 
     public GPSCollector(Context context)
     {
+        super();
+
         this.context = context;
         this.locationListeners = new HashSet<>();
+
+        if(this.sensorRate < 0) {
+            this.sensorRate = Settings.GPS_DEFAULT_FREQUENCY;
+        }
 
         // create new plotter
         List<String> devices = DatabaseHelper.getStringResultSet("SELECT device FROM " + SQLTableName.DEVICES, null);
         for(String device : devices) {
             GPSCollector.createNewPlotter(device);
         }
+
+        // check if google play services are installed
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this.context);
+        if(status == ConnectionResult.SUCCESS) {
+            this.mGoogleApiClient = new GoogleApiClient.Builder(this.context).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
+        }
+
+        // backup
+        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
 
     @Override
     public void onRegistered()
     {
-        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        if(mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        } else {
+            searchLocationWithoutGoogleService();
+        }
+
+        this.timer = new Timer();
+        this.timer.scheduleAtFixedRate(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                Log.d("GPSCollector", "New Data Available?");
+
+                Location location = null;
+                if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+                    location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                }
+
+                if(location == null || (lastKnownLocation != null && location.getTime() <= lastKnownLocation.getTime())) {
+                    location = getBestLocation();
+                }
+
+                if(location != null && (lastKnownLocation == null || location.getTime() > lastKnownLocation.getTime())) {
+                    lastKnownLocation = location;
+                    doLocationUpdate(lastKnownLocation);
+                }
+            }
+        }, 0, getSensorRate());
+    }
+
+
+    private void searchLocationWithoutGoogleService()
+    {
+        if(Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
 
         for(String provider : locationManager.getAllProviders()) {
             LocationListener ll = new LocationListener()
@@ -105,39 +168,26 @@ public class GPSCollector extends CustomCollector
             this.locationManager.requestLocationUpdates(provider, getSensorRate(), 0, ll);
             this.locationListeners.add(ll);
         }
-
-        this.timer = new Timer();
-        this.timer.scheduleAtFixedRate(new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                Log.d("GPSCollector", "New Data Available?");
-                Location location = getBestLocation();
-                if(location != null && (lastKnownLocation == null || location.getTime() > lastKnownLocation.getTime())) {
-                    lastKnownLocation = location;
-                    doLocationUpdate(lastKnownLocation);
-                }
-            }
-        }, 0, getSensorRate());
     }
 
 
     @Override
     public void onDeRegistered()
     {
-        for(LocationListener ll : this.locationListeners) {
-            this.locationManager.removeUpdates(ll);
+        if(this.mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+
+        if(Build.VERSION.SDK_INT >= 23 &&
+                !(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            for(LocationListener ll : this.locationListeners) {
+                this.locationManager.removeUpdates(ll);
+            }
         }
         this.timer.cancel();
         this.map = null;
-    }
-
-
-    @Override
-    public void doTask()
-    {
-
+        this.lastKnownLocation = null;
     }
 
 
@@ -191,6 +241,12 @@ public class GPSCollector extends CustomCollector
 
     private Location getLocationByProvider(String provider)
     {
+        if(Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
+
         try {
             if(this.locationManager.isProviderEnabled(provider)) {
                 return this.locationManager.getLastKnownLocation(provider);
@@ -260,7 +316,7 @@ public class GPSCollector extends CustomCollector
     public static void createNewPlotter(String deviceID)
     {
         PlotConfiguration levelPlot = new PlotConfiguration();
-        levelPlot.domainValueNames = new String[]{ };
+        levelPlot.domainValueNames = new String[]{};
         levelPlot.tableName = SQLTableName.GPS;
         levelPlot.sensorName = "GPS";
 
@@ -288,7 +344,7 @@ public class GPSCollector extends CustomCollector
 
     public static void createDBStorage(String deviceID)
     {
-        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.GPS + " (id INTEGER PRIMARY KEY, " + valueNames[2] + " INTEGER UNIQUE, " + valueNames[0] + " REAL, " + valueNames[1] + " REAL)";
+        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.GPS + " (id INTEGER PRIMARY KEY, " + valueNames[2] + " INTEGER, " + valueNames[0] + " REAL, " + valueNames[1] + " REAL)";
         SQLDBController.getInstance().execSQL(sqlTable);
     }
 
@@ -296,5 +352,26 @@ public class GPSCollector extends CustomCollector
     public static void writeDBStorage(String deviceID, ContentValues newValues)
     {
         SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.GPS, null, newValues);
+    }
+
+
+    @Override
+    public void onConnected(Bundle bundle)
+    {
+        // TODO
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i)
+    {
+        // TODO
+    }
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult)
+    {
+        searchLocationWithoutGoogleService();
     }
 }

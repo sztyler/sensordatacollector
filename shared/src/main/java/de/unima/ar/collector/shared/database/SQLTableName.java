@@ -36,4 +36,5 @@ public class SQLTableName
     public static final String RELATIVE      = "SensorRelativeHumidityData";
     public static final String ROTATION      = "SensorRotationVectorData";
     public static final String STEP          = "SensorStepDetectorData";
+    public static final String STEPCOUNTER   = "SensorStepCounterData";
 }

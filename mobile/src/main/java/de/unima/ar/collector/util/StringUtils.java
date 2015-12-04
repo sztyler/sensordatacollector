@@ -1,5 +1,7 @@
 package de.unima.ar.collector.util;
 
+import android.util.Log;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,49 +67,5 @@ public class StringUtils
         }
 
         return result.toArray(new String[result.size()]);
-    }
-
-
-    public static String formatFeatureValues(double d)
-    {
-        String s = String.valueOf(d);
-        if(s.length() > 10) {
-            return s.substring(0, 10);
-        }
-
-        for(int i = 0; i < (10 - s.length()); i++) {
-            s += "0";
-        }
-
-        return s;
-    }
-
-
-    public static String relatedLabel(String method, String attr)
-    {
-        switch(method) {
-            case "CC":
-                if("x".equals(attr)) {
-                    return "xy";
-                } else if("y".equals(attr)) {
-                    return "yz";
-                } else if("z".equals(attr)) {
-                    return "yx";
-                }
-                break;
-            case "Orient":
-                if("x".equals(attr)) {
-                    return "Azimut";
-                } else if("y".equals(attr)) {
-                    return "Roll";
-                } else if("z".equals(attr)) {
-                    return "Pitch";
-                }
-                break;
-            default:
-                return attr;
-        }
-
-        return attr;
     }
 }

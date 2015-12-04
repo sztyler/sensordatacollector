@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="de.unima.ar.collector"
-          android:versionCode="16"
-          android:versionName="1.6.0">
+          package="de.unima.ar.collector">
 
     <uses-feature android:name="android.hardware.type.watch"/>
 

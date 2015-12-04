@@ -1,15 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "de.unima.ar.collector"
         minSdkVersion 16
-        targetSdkVersion 21
-        versionCode 16
-        versionName "1.6.0"
+        targetSdkVersion 23
+        versionCode 19
+        versionName "1.5.17"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -17,17 +18,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    wearApp project(':wear')
-    compile 'com.android.support:appcompat-v7:21.0.2'
-    compile 'com.google.android.gms:play-services:6.1.71'
-    compile 'com.android.support:support-v4:21.0.2'
+    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:support-v4:23.1.0'
+    compile 'com.google.android.gms:play-services:8.3.0'
     compile 'com.google.guava:guava:18.0'
+    wearApp project(':wear')
     compile project(':shared')
 }

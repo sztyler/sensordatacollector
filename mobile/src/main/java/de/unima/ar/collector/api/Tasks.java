@@ -3,16 +3,20 @@ package de.unima.ar.collector.api;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.google.android.gms.wearable.WearableListenerService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import de.unima.ar.collector.MainActivity;
 import de.unima.ar.collector.R;
+import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
@@ -24,19 +28,26 @@ import de.unima.ar.collector.sensors.MagneticFieldSensorCollector;
 import de.unima.ar.collector.sensors.OrientationSensorCollector;
 import de.unima.ar.collector.sensors.PressureSensorCollector;
 import de.unima.ar.collector.sensors.RotationVectorSensorCollector;
+import de.unima.ar.collector.sensors.StepCounterSensorCollector;
 import de.unima.ar.collector.sensors.StepDetectorSensorCollector;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.Utils;
 import de.unima.ar.collector.util.DBUtils;
+import de.unima.ar.collector.util.SensorDataUtil;
 import de.unima.ar.collector.util.StringUtils;
 
 public class Tasks
 {
     protected static void informThatWearableHasStarted(byte[] rawData, WearableListenerService wls)
     {
+        String data = StringUtils.convertByteArrayToString(rawData);
+        if(data == null) {
+            return;
+        }
+
         // register device
-        String[] tmp = StringUtils.convertByteArrayToString(rawData).split(Pattern.quote("~#X*X#~"));
+        String[] tmp = data.split(Pattern.quote("~#X*X#~"));
         String deviceID = tmp[0];
         String deviceAddress = tmp[1];
 
@@ -45,6 +56,11 @@ public class Tasks
         }
 
         ListenerService.addDevice(deviceID, deviceAddress);
+
+        // send settings
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(wls);
+        BroadcastService.getInstance().sendMessage("/settings", "[WEARSENSOR, " + pref.getBoolean("watch_collect", true) + "]");
+        BroadcastService.getInstance().sendMessage("/settings", "[WEARTRANSFERDIRECT, " + pref.getBoolean("watch_direct", false) + "]");
 
         // main activity started?
         MainActivity activity = (MainActivity) ActivityController.getInstance().get("MainActivity");
@@ -131,6 +147,9 @@ public class Tasks
     {
         // parse data
         String data = StringUtils.convertByteArrayToString(rawData);
+        if(data == null) {
+            return;
+        }
 
         String activity = data;
         String subActivity = null;
@@ -166,6 +185,9 @@ public class Tasks
     {
         // parse data
         String data = StringUtils.convertByteArrayToString(rawData);
+        if(data == null) {
+            return;
+        }
 
         String activity = data;
         String subActivity = null;
@@ -241,7 +263,7 @@ public class Tasks
         path = path.substring("/sensor/data/".length());
 
         String deviceID = path.substring(0, path.indexOf("/"));
-        int type = Integer.valueOf(path.substring(path.indexOf("/") + 1));
+        int type = Integer.valueOf(path.substring(path.indexOf("/") + 1, path.lastIndexOf("/")));
 
         String data = StringUtils.convertByteArrayToString(rawData);
         String[] entries = StringUtils.split(data);
@@ -252,40 +274,44 @@ public class Tasks
 
         switch(type) {
             case 1:
-                AccelerometerSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                AccelerometerSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 AccelerometerSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 2:
-                MagneticFieldSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                MagneticFieldSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 MagneticFieldSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 3:
-                OrientationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                OrientationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 OrientationSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 4:
-                GyroscopeSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                GyroscopeSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 GyroscopeSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 6:
-                PressureSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                //                PressureSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
                 PressureSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 9:
-                GravitySensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                GravitySensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 GravitySensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 10:
-                LinearAccelerationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                LinearAccelerationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 LinearAccelerationSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 11:
-                RotationVectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                //                RotationVectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
                 RotationVectorSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 18:
-                StepDetectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                //                StepDetectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
                 StepDetectorSensorCollector.writeDBStorage(deviceID, newValues);
+                break;
+            case 19:
+                //                StepCounterSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                StepCounterSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
         }
     }
@@ -313,6 +339,15 @@ public class Tasks
             record = record.substring(0, record.length() - 1);
 
             Tasks.processIncomingSensorData(path.replace("blob", "data"), record.getBytes());
+        }
+
+        String head = path.substring(0, path.lastIndexOf("/"));
+        int type = Integer.valueOf(head.substring(head.lastIndexOf("/") + 1));
+        String deviceID = path.substring("/sensor/blob/".length(), path.indexOf("/", "/sensor/blob/".length()));
+        boolean last = Boolean.valueOf(path.substring(path.lastIndexOf("/") + 1));
+        Set<Integer> enabledSensors = SensorDataCollectorService.getInstance().getSCM().getEnabledCollectors();
+        if(!enabledSensors.contains(type) && last) {
+            SensorDataUtil.flushSensorDataCache(type, deviceID);
         }
     }
 }

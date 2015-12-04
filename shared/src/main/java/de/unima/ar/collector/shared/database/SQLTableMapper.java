@@ -31,6 +31,8 @@ public class SQLTableMapper
                 return SQLTableName.AMBIENT;
             case 18:
                 return SQLTableName.STEP;
+            case 19:
+                return SQLTableName.STEPCOUNTER;
             case -2:
                 return SQLTableName.MICROPHONE;
             case -3:
@@ -70,6 +72,8 @@ public class SQLTableMapper
                 return 13;
             case SQLTableName.STEP:
                 return 18;
+            case SQLTableName.STEPCOUNTER:
+                return 19;
             case SQLTableName.MICROPHONE:
                 return -2;
             case SQLTableName.GPS:

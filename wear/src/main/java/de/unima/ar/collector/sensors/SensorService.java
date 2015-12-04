@@ -109,6 +109,12 @@ public class SensorService extends Service
     }
 
 
+    public void forceDBObserver()
+    {
+        this.dbo.forceSending();
+    }
+
+
     @Override
     public void onCreate()
     {

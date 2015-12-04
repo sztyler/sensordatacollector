@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/preferences_watch_category">
+
+        <CheckBoxPreference
+            android:key="watch_collect"
+            android:summary="@string/preferences_watch_sensorenabled_desc"
+            android:title="@string/preferences_watch_sensorenabled"
+            android:defaultValue="true"/>
+
+        <CheckBoxPreference
+            android:key="watch_direct"
+            android:summary="@string/preferences_watch_directenabled_desc"
+            android:title="@string/preferences_watch_directenabled"
+            android:defaultValue="false"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/sensors_preferences_category">
+
+        <CheckBoxPreference
+            android:key="sensor_lowpass"
+            android:summary="@string/sensor_lowpass_desc"
+            android:title="@string/sensor_lowpass_title"
+            android:defaultValue="false"/>
+
+        <EditTextPreference
+            android:key="sensor_frequency"
+            android:summary="@string/sensor_frequency_desc"
+            android:title="@string/sensor_frequency_title"
+            android:defaultValue="50.0"/>
+
+        <CheckBoxPreference
+            android:key="live_plotter"
+            android:summary="@string/preferences_plotter_enabled_desc"
+            android:title="@string/preferences_plotter_enabled"
+            android:defaultValue="true"/>
+
+        <!--<CheckBoxPreference-->
+            <!--android:key="database_direct_insert"-->
+            <!--android:summary="@string/plotter_enable_desc"-->
+            <!--android:title="@string/plotter_enable_title"-->
+            <!--android:defaultValue="true"/>-->
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/option_export_title">
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="database_delete"
+            android:summary="@string/option_export_delete_desc"
+            android:title="@string/option_export_delete"/>
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="database_save"
+            android:summary="@string/option_export_copy_desc"
+            android:title="@string/option_export_copy"/>
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="database_csv"
+            android:summary="@string/option_export_export_desc"
+            android:title="@string/option_export_export"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/option_about_title">
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="app_version"
+            android:summary="@string/option_about_version_description"
+            android:title="@string/option_about_version"
+            android:clickable="false"/>
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="app_developer"
+            android:summary="@string/option_about_developer_description"
+            android:title="@string/option_about_developer"
+            android:clickable="false"/>
+
+        <de.unima.ar.collector.ui.TextViewPreference
+            android:key="app_institution"
+            android:summary="@string/option_about_institution_description"
+            android:title="@string/option_about_institution"
+            android:clickable="false"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

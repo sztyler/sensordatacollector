@@ -2,6 +2,7 @@ package de.unima.ar.collector.ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ public class DialogActivityListAdapter extends ArrayAdapter<String>
         label.setText(this.getItem(position));
         if(position == 0) {
             label.setTypeface(null, Typeface.BOLD | Typeface.ITALIC);
-            label.setBackground(context.getResources().getDrawable(R.drawable.border));
+            label.setBackground(ContextCompat.getDrawable(context, R.drawable.border));
         }
 
         return rowView;

@@ -61,8 +61,8 @@ public class Plotter
 
         // get rid the oldest sample in history:
         if(historyValues[0].size() > historyPlot.domainMax - historyPlot.domainMin) {
-            for(int i = 0; i < historyValues.length; i++) {
-                historyValues[i].removeFirst();
+            for(SimpleXYSeries historyValue : historyValues) {
+                historyValue.removeFirst();
             }
         }
 
@@ -84,7 +84,7 @@ public class Plotter
         levelsValues = new SimpleXYSeries(levelPlot.SeriesName);
         levelsValues.useImplicitXVals();
         levelPlot.plot.addSeries(levelsValues, new BarFormatter(Color.argb(180, 0, 200, 0), Color.rgb(0, 100, 0)));
-        levelPlot.plot.addSeries(new SimpleXYSeries(Arrays.asList(new Number[]{ -10, 0, 10, 0 }), SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED, "0"), new LineAndPointFormatter(Color.argb(140, 200, 80, 80), Color.BLACK, null, null));
+        levelPlot.plot.addSeries(new SimpleXYSeries(Arrays.asList(-10, 0, 10, 0), SimpleXYSeries.ArrayFormat.XY_VALS_INTERLEAVED, "0"), new LineAndPointFormatter(Color.argb(140, 200, 80, 80), Color.BLACK, null, null));
         levelPlot.plot.setTitle(levelPlot.plotName);
 
         levelPlot.plot.setDomainStepValue(levelPlot.domainValueNames.length);
@@ -145,7 +145,7 @@ public class Plotter
         historyPlot.plot.getRangeLabelWidget().pack();
 
         // get a ref to the BarRenderer so we can make some changes to it:
-        @SuppressWarnings("rawtypes") BarRenderer barRenderer = (BarRenderer) levelPlot.plot.getRenderer(BarRenderer.class);
+        @SuppressWarnings( "rawtypes" ) BarRenderer barRenderer = (BarRenderer) levelPlot.plot.getRenderer(BarRenderer.class);
         if(barRenderer != null) {
             // make our bars a little thicker than the default so they can be seen better:
             // barRenderer.setBarWidth(300);

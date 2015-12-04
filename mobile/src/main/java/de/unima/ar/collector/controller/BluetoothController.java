@@ -77,7 +77,7 @@ public class BluetoothController extends BroadcastReceiver
     {
         String action = intent.getAction();
         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-        String deviceAddress = new String();
+        String deviceAddress = "";
         if(device != null) {
             deviceAddress = device.getAddress();
         }

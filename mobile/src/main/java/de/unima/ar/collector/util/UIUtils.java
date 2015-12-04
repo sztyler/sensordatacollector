@@ -1,6 +1,8 @@
 package de.unima.ar.collector.util;
 
 import android.app.Activity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import de.unima.ar.collector.MainActivity;
@@ -34,5 +36,19 @@ public class UIUtils
         }
 
         return data;
+    }
+
+
+    public static void setEnabled(ViewGroup layout, boolean enabled)
+    {
+        layout.setEnabled(false);
+        for(int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if(child instanceof ViewGroup) {
+                setEnabled((ViewGroup) child, enabled);
+            } else {
+                child.setEnabled(enabled);
+            }
+        }
     }
 }

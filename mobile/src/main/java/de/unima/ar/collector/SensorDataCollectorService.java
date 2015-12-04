@@ -21,6 +21,7 @@ import de.unima.ar.collector.api.ListenerService;
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.sensors.SensorCollectorManager;
+import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 
 
@@ -126,7 +127,7 @@ public class SensorDataCollectorService extends Service
                 int sensorID = Integer.valueOf(sensor[0]);
                 if(!scm.enableCollectors(sensorID)) {
                     continue;
-                } else if(sensorID > 0) {
+                } else if(sensorID > 0 && Settings.WEARSENSOR) {
                     BroadcastService.getInstance().sendMessage("/sensor/register", "[" + sensorID + ", " + scm.getSensorCollectors().get(sensorID).getSensorRate() + "]");
                 }
                 cou++;

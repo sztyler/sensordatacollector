@@ -16,11 +16,17 @@
     <string name="posture_headline">Posture</string>
     <string name="position_headline">Position</string>
     <string name="activity_headline">Activity</string>
-    <string name="activity_general_loading">loading...</string>
+    <string name="activity_general_loading">loading&#8230;</string>
     <string name="activity_general_notspecified">Not Specified</string>
     <string name="activity_general_activities">Activities</string>
 
     <string name="broadcast_outofrange">Warning! Smartphone out of Range!</string>
+    <string name="sending_error">Warning! Data could not be transferred. Try again&#8230;</string>
 
     <string name="database_delete">Database deleted!</string>
+
+    <string name="preferences_directtransfer_enabled">\'Transfer immediately\' activated</string>
+    <string name="preferences_directtransfer_disabled">\'Transfer immediately\' deactivated</string>
+    <string name="preferences_sensors_enabled">\'Sensor recordning\' activated</string>
+    <string name="preferences_sensors_disabled">\'Sensor recordning\' deactivated</string>
 </resources>

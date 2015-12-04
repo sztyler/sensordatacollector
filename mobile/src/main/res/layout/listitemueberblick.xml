@@ -15,7 +15,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
 	    android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#454444"
 	    android:textSize="20sp"
 	    />
     <TextView
@@ -44,6 +43,5 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
 	    android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#3E3D3D"
 	    android:textSize="16sp" />
 </RelativeLayout>

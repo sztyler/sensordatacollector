@@ -1,10 +1,8 @@
 package de.unima.ar.collector.util;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
-import android.os.Environment;
 
 import com.androidplot.ui.AnchorPosition;
 import com.androidplot.ui.DynamicTableModel;
@@ -17,20 +15,12 @@ import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.util.Set;
 import java.util.TreeSet;
 
-import de.unima.ar.collector.R;
 import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.sensors.AccelerometerSensorCollector;
 import de.unima.ar.collector.sensors.AmbientTemperatureSensorCollector;
@@ -45,6 +35,7 @@ import de.unima.ar.collector.sensors.ProximitySensorCollector;
 import de.unima.ar.collector.sensors.RelativeHumiditySensorCollector;
 import de.unima.ar.collector.sensors.RotationVectorSensorCollector;
 import de.unima.ar.collector.sensors.SensorCollectorManager;
+import de.unima.ar.collector.sensors.StepCounterSensorCollector;
 import de.unima.ar.collector.sensors.StepDetectorSensorCollector;
 
 
@@ -208,97 +199,6 @@ public class SensorDataUtil
     }
 
 
-    //    public static void writeTextFileToSDCard(Context context, String Filename, String data)
-    //    {
-    //        File extStore = Environment.getExternalStorageDirectory();
-    //
-    //        if(extStore == null) {
-    //            Toast.makeText(context, R.string.util_nosdcardfound, Toast.LENGTH_LONG).show();
-    //            return;
-    //        }
-    //
-    //        // Unseren eigenen Ordner auf der SD Karte erstellen falls nicht
-    //        // vorhanden
-    //        File dst = new File(extStore.getAbsolutePath() + "/SensorDataCollector");
-    //
-    //        dst.mkdirs();
-    //
-    //        dst = new File(dst.getAbsolutePath() + "/" + Filename);
-    //
-    //        try {
-    //            dst.createNewFile();
-    //        } catch(IOException e1) {
-    //            Toast.makeText(context, R.string.util_couldnotcreatefile, Toast.LENGTH_LONG).show();
-    //            return;
-    //        }
-    //
-    //        try {
-    //            PrintWriter out = new PrintWriter(dst.getAbsolutePath());
-    //            out.print(data);
-    //            out.close();
-    //        } catch(FileNotFoundException e) {
-    //            Toast.makeText(context, R.string.util_couldnotcreatefile, Toast.LENGTH_LONG).show();
-    //            return;
-    //        }
-    //
-    //        Toast.makeText(context, R.string.option_export_filewritesuccessful, Toast.LENGTH_LONG).show();
-    //    }
-
-
-    public static int copyFileToSDCard(Context context, String Filename, File copyFile)
-    {
-        File extStore = Environment.getExternalStorageDirectory();
-
-        if(extStore == null) {
-            return R.string.option_export_nosdcardfound;
-        }
-
-        // Unseren eigenen Ordner auf der SD Karte erstellen falls nicht
-        // vorhanden
-        File dst = new File(extStore.getAbsolutePath() + "/SensorDataCollector");
-
-        dst.mkdirs();
-
-        dst = new File(dst.getAbsolutePath() + "/" + Filename);
-
-        try {
-            dst.createNewFile();
-        } catch(IOException e1) {
-            return R.string.option_export_couldnotcreatefile;
-        }
-
-        if(copyFile != null && copyFile.exists()) {
-            InputStream in;
-            OutputStream out;
-
-            try {
-                in = new FileInputStream(copyFile);
-                out = new FileOutputStream(dst);
-            } catch(FileNotFoundException e) {
-                return R.string.option_export_erroropenfile;
-            }
-
-            // Transfer bytes from in to out
-            byte[] buf = new byte[1024];
-            int len;
-            try {
-                while((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-
-                in.close();
-                out.close();
-            } catch(IOException e) {
-                return R.string.option_export_errorwritingfile;
-            }
-
-            return R.string.option_export_copysuccessful;
-        } else {
-            return R.string.option_export_filedoesnotexist;
-        }
-    }
-
-
     /**
      * Returns the type in string from int value
      */
@@ -411,7 +311,7 @@ public class SensorDataUtil
     }
 
 
-    public static void flushSensorDataCache(final int type)
+    public static void flushSensorDataCache(final int type, final String deviceID)
     {
         new Thread(new Runnable()
         {
@@ -419,43 +319,46 @@ public class SensorDataUtil
             public void run()
             {
                 if(type == 1 || type == 0) {
-                    AccelerometerSensorCollector.flushDBCache();
+                    AccelerometerSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 2 || type == 0) {
-                    MagneticFieldSensorCollector.flushDBCache();
+                    MagneticFieldSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 3 || type == 0) {
-                    OrientationSensorCollector.flushDBCache();
+                    OrientationSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 4 || type == 0) {
-                    GyroscopeSensorCollector.flushDBCache();
+                    GyroscopeSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 5 || type == 0) {
-                    LightSensorCollector.flushDBCache();
+                    LightSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 6 || type == 0) {
-                    PressureSensorCollector.flushDBCache();
+                    PressureSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 8 || type == 0) {
-                    ProximitySensorCollector.flushDBCache();
+                    ProximitySensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 9 || type == 0) {
-                    GravitySensorCollector.flushDBCache();
+                    GravitySensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 10 || type == 0) {
-                    LinearAccelerationSensorCollector.flushDBCache();
+                    LinearAccelerationSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 11 || type == 0) {
-                    RotationVectorSensorCollector.flushDBCache();
+                    RotationVectorSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 12 || type == 0) {
-                    RelativeHumiditySensorCollector.flushDBCache();
+                    RelativeHumiditySensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 13 || type == 0) {
-                    AmbientTemperatureSensorCollector.flushDBCache();
+                    AmbientTemperatureSensorCollector.flushDBCache(deviceID);
                 }
                 if(type == 18 || type == 0) {
-                    StepDetectorSensorCollector.flushDBCache();
+                    StepDetectorSensorCollector.flushDBCache(deviceID);
+                }
+                if(type == 19 || type == 0) {
+                    StepCounterSensorCollector.flushDBCache(deviceID);
                 }
             }
         }).start();
@@ -467,7 +370,7 @@ public class SensorDataUtil
         SensorCollectorManager scm = SensorDataCollectorService.getInstance().getSCM();
 
         if(scm == null) {
-            return new String[]{ };
+            return new String[]{};
         }
 
         Set<Integer> enabledCollectors = scm.getEnabledCollectors();

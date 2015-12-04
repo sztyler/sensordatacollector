@@ -3,8 +3,14 @@ package de.unima.ar.collector.sensors.collectors;
 import android.content.ContentValues;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.util.Log;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.unima.ar.collector.api.BroadcastService;
+import de.unima.ar.collector.database.DBUtils;
 import de.unima.ar.collector.database.SQLDBController;
 import de.unima.ar.collector.sensors.SensorService;
 import de.unima.ar.collector.shared.Settings;
@@ -19,6 +25,8 @@ public class GyroscopeCollector extends Collector
     private boolean isRegistered = false;
     private int     sensorRate   = 0;
 
+    private static Map<String, List<String[]>> cache = new HashMap<>();
+
 
     @Override
     public void onSensorChanged(SensorEvent event)
@@ -28,7 +36,7 @@ public class GyroscopeCollector extends Collector
 
         String deviceID = DeviceID.get(SensorService.getInstance());
 
-        if(Settings.WEARDIRECTTRANSFER) {
+        if(Settings.WEARTRANSFERDIRECT) {
             String record = valueNames[0] + ";" + values[0] + ";" + valueNames[1] + ";" + values[1] + ";" + valueNames[2] + ";" + values[2] + ";" + valueNames[3] + ";" + time;
             BroadcastService.getInstance().sendMessage("/sensor/data/" + deviceID + "/" + type, record);
         } else {
@@ -94,6 +102,28 @@ public class GyroscopeCollector extends Collector
 
     public static void writeDBStorage(String deviceID, ContentValues newValues)
     {
-        SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.GYROSCOPE, null, newValues);
+        String tableName = SQLTableName.PREFIX + deviceID + SQLTableName.GYROSCOPE;
+
+        if(Settings.DATABASE_DIRECT_INSERT) {
+            SQLDBController.getInstance().insert(tableName, null, newValues);
+            return;
+        }
+
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
+        if(clone != null) {
+            Log.d("TIMOSENSOR", "INSERT GYRO INTO DB");
+            SQLDBController.getInstance().bulkInsert(tableName, clone);
+        }
+    }
+
+
+    public static void flushDBCache()
+    {
+        if(cache.keySet().size() != 0) {
+            Log.d("TIMOSENSOR", "FLUSH GYRO INTO DB" + cache.values().iterator().next().size());
+        } else {
+            Log.d("TIMOSENSOR", "FLUSH GYRO INTO DB - CACHE EMPTY");
+        }
+        DBUtils.flushCache(SQLTableName.GYROSCOPE, cache);
     }
 }

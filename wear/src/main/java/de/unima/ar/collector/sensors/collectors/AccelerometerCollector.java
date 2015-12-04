@@ -4,8 +4,14 @@ package de.unima.ar.collector.sensors.collectors;
 import android.content.ContentValues;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.util.Log;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.unima.ar.collector.api.BroadcastService;
+import de.unima.ar.collector.database.DBUtils;
 import de.unima.ar.collector.database.SQLDBController;
 import de.unima.ar.collector.sensors.SensorService;
 import de.unima.ar.collector.shared.Settings;
@@ -20,6 +26,8 @@ public class AccelerometerCollector extends Collector
     private boolean isRegistered = false;
     private int     sensorRate   = 0;
     private float[] gravity      = new float[]{ 0, 0, 0 };
+
+    private static Map<String, List<String[]>> cache = new HashMap<>();
 
 
     @Override
@@ -45,7 +53,7 @@ public class AccelerometerCollector extends Collector
 
         String deviceID = DeviceID.get(SensorService.getInstance());
 
-        if(Settings.WEARDIRECTTRANSFER) {
+        if(Settings.WEARTRANSFERDIRECT) {
             String record = valueNames[0] + ";" + x + ";" + valueNames[1] + ";" + y + ";" + valueNames[2] + ";" + z + ";" + valueNames[3] + ";" + time;
             BroadcastService.getInstance().sendMessage("/sensor/data/" + deviceID + "/" + type, record);
         } else {
@@ -111,6 +119,28 @@ public class AccelerometerCollector extends Collector
 
     public static void writeDBStorage(String deviceID, ContentValues newValues)
     {
-        SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.ACCELEROMETER, null, newValues);
+        String tableName = SQLTableName.PREFIX + deviceID + SQLTableName.ACCELEROMETER;
+
+        if(Settings.DATABASE_DIRECT_INSERT) {
+            SQLDBController.getInstance().insert(tableName, null, newValues);
+            return;
+        }
+
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
+        if(clone != null) {
+            Log.d("TIMOSENSOR", "INSERT ACC INTO DB");
+            SQLDBController.getInstance().bulkInsert(tableName, clone);
+        }
+    }
+
+
+    public static void flushDBCache()
+    {
+        if(cache.keySet().size() != 0) {
+            Log.d("TIMOSENSOR", "FLUSH ACC INTO DB - " + cache.values().iterator().next().size());
+        } else {
+            Log.d("TIMOSENSOR", "FLUSH ACC INTO DB - CACHE EMPTY");
+        }
+        DBUtils.flushCache(SQLTableName.ACCELEROMETER, cache);
     }
 }

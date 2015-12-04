@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:textColor="#3E3D3D"
+        android:textColor="@color/white"
         android:textSize="20sp"/>
 
     <TextView
@@ -48,7 +48,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/sensorfreqbutton"
         android:layout_toStartOf="@+id/sensorfreqbutton"
-        android:textColor="#3E3D3D"
+        android:textColor="@color/white"
         android:text="@string/sensor_selftest_button"/>
 
     <Button
@@ -59,7 +59,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/sensorcheckBox1"
         android:layout_toStartOf="@+id/sensorcheckBox1"
-        android:textColor="#3E3D3D"
+        android:textColor="@color/white"
         android:text="@string/sensor_frequency_button"/>
 
 </RelativeLayout>

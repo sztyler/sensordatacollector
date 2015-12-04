@@ -133,15 +133,15 @@ public class StepDetectorSensorCollector extends SensorCollector
             return;
         }
 
-        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues);
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
         if(clone != null) {
             SQLDBController.getInstance().bulkInsert(tableName, clone);
         }
     }
 
 
-    public static void flushDBCache()
+    public static void flushDBCache(String deviceID)
     {
-        DBUtils.flushCache(SQLTableName.STEP, cache);
+        DBUtils.flushCache(SQLTableName.STEP, cache, deviceID);
     }
 }

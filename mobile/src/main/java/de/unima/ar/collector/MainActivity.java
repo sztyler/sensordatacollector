@@ -15,17 +15,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.database.MatrixCursor;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Pair;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,12 +34,10 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,11 +58,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -73,12 +69,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Set;
 
 import de.unima.ar.collector.api.BroadcastService;
 import de.unima.ar.collector.api.ListenerService;
-import de.unima.ar.collector.container.Screens;
 import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.controller.AdapterController;
 import de.unima.ar.collector.controller.BluetoothController;
@@ -86,9 +80,6 @@ import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.extended.Plotter;
 import de.unima.ar.collector.extended.SensorSelfTest;
-import de.unima.ar.collector.features.FE;
-import de.unima.ar.collector.features.model.Window;
-import de.unima.ar.collector.sensors.AccelerometerSensorCollector;
 import de.unima.ar.collector.sensors.CustomCollector;
 import de.unima.ar.collector.sensors.GPSCollector;
 import de.unima.ar.collector.sensors.SensorCollector;
@@ -96,21 +87,18 @@ import de.unima.ar.collector.sensors.SensorCollectorManager;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
-import de.unima.ar.collector.ui.AboutAdapter;
 import de.unima.ar.collector.ui.ActivityListRowAdapter;
 import de.unima.ar.collector.ui.ActivityOnItemClickListener;
-import de.unima.ar.collector.ui.AnalyzeFeatureAdapter;
 import de.unima.ar.collector.ui.AnalyzeRowAdapter;
 import de.unima.ar.collector.ui.CorrectionHistoryAdapter;
 import de.unima.ar.collector.ui.DataPlotZoomListener;
-import de.unima.ar.collector.ui.IconArrayAdapter;
 import de.unima.ar.collector.ui.OverviewRowAdapter;
 import de.unima.ar.collector.ui.SensorenRowAdapter;
 import de.unima.ar.collector.ui.SeparatedListAdapter;
+import de.unima.ar.collector.ui.SettingActivity;
 import de.unima.ar.collector.ui.dialog.CreateCorrectionDialog;
 import de.unima.ar.collector.ui.dialog.DatabaseSensorDialog;
 import de.unima.ar.collector.ui.dialog.GPSDatabaseDialog;
-import de.unima.ar.collector.ui.dialog.SelectExportTables;
 import de.unima.ar.collector.util.CustomPointFormatter;
 import de.unima.ar.collector.util.DBUtils;
 import de.unima.ar.collector.util.DateFormat;
@@ -118,16 +106,25 @@ import de.unima.ar.collector.util.PlotConfiguration;
 import de.unima.ar.collector.util.SensorDataUtil;
 import de.unima.ar.collector.util.StringUtils;
 import de.unima.ar.collector.util.Triple;
-import de.unima.ar.collector.util.UIUtils;
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends AppCompatActivity
 {
+    public enum Screens
+    {
+        SENSOREN, ANALYZE, ANALYZE_LIVE, ANALYZE_DATABASE, OPTIONS, SENSOREN_DETAILS, ACTIVITIES, SENSOREN_SELFTEST, ADDITIONAL_DEVICES, ACTIVITY_CORRECTION
+    }
+
+    private class ScreenInfo
+    {
+        public Screens screen;
+        public Object  data[];
+    }
+
+    private final static ArrayList<ScreenInfo> lastScreens = new ArrayList<>();
+
     private View              GPSView;
     private ArrayList<Marker> positionMarkers;
     private Polyline          polyline;
-
-    private ActionBarDrawerToggle mDrawerToggle;
-    private IconArrayAdapter      navigationMenu;
 
     private SensorSelfTest lastSensorSelfTest = null;
 
@@ -136,6 +133,17 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        // set default values
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        // restore settings
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        Settings.WEARSENSOR = pref.getBoolean("watch_collect", true);
+        Settings.WEARTRANSFERDIRECT = pref.getBoolean("watch_direct", false);
+        Settings.ACCLOWPASS = pref.getBoolean("sensor_lowpass", false);
+        Settings.SENSOR_DEFAULT_FREQUENCY = Double.parseDouble(pref.getString("sensor_frequency", "50.0f"));
+        Settings.LIVE_PLOTTER_ENABLED = pref.getBoolean("live_plotter", true);
 
         // register
         String deviceID = DeviceID.get(this);
@@ -163,18 +171,10 @@ public class MainActivity extends ActionBarActivity
         showSensoren();
 
         // style
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.ic_launcher);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        // navigation drawer
-        String[] titles = new String[]{ getString(R.string.main_overview), getString(R.string.analyze_analyze), getString(R.string.app_icon_services), getString(R.string.settings_title) };
-        Integer[] icons = new Integer[]{ R.drawable.ic_action_computer, R.drawable.ic_action_cloud, R.drawable.ic_action_settings, R.drawable.ic_action_settings };
-        Screens.Type[] screens = new Screens.Type[]{ Screens.Type.SENSOREN, Screens.Type.ANALYZE, Screens.Type.OPTIONS, Screens.Type.SETTINGS };
-        this.navigationMenu = new IconArrayAdapter(this, Arrays.asList(icons), Arrays.asList(titles), Arrays.asList(screens));
-
-        initActionBarMenu();
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
     }
 
 
@@ -195,49 +195,72 @@ public class MainActivity extends ActionBarActivity
     }
 
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState)
+    private ScreenInfo getCurrentScreen()
     {
-        super.onPostCreate(savedInstanceState);
-
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
+        return lastScreens.get(lastScreens.size() - 1);
     }
 
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig)
+    private void addScreen(Screens screen)
     {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        addScreen(screen, new Object[]{});
+    }
+
+
+    /**
+     * @param screen der hinzugefügt werden soll
+     * @param data   zusätzliche Daten zum Screen
+     */
+    private void addScreen(Screens screen, Object[] data)
+    {
+        ScreenInfo si = new ScreenInfo();
+
+        si.screen = screen;
+        si.data = data;
+
+        // disable sensors if selftest was active
+        if(lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.SENSOREN_SELFTEST) {
+            this.lastSensorSelfTest.stopTest();
+        }
+
+        // disable live plotter if it was active
+        if(lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.ANALYZE_LIVE) {
+            ((Plotter) lastScreens.get(lastScreens.size() - 1).data[2]).setPlotting(false);
+        }
+
+        // Maximal die letzten 10 Screens erinnern
+        if(lastScreens.size() >= 9) {
+            lastScreens.remove(0); // Lösche ersten Eintrag
+        }
+
+        lastScreens.add(si);
     }
 
 
     @Override
     public void onBackPressed()
     {
-        if(Screens.size() <= 1) {
+        if(lastScreens.size() <= 1) {
             return;
         }
 
         // disable sensors if selftest was active
-        if(Screens.get(Screens.size() - 1).first == Screens.Type.SENSOREN_SELFTEST) {
+        if(lastScreens.get(lastScreens.size() - 1).screen == Screens.SENSOREN_SELFTEST) {
             this.lastSensorSelfTest.stopTest();
         }
 
         // disable live plotter if it was active
-        if(Screens.get(Screens.size() - 1).first == Screens.Type.ANALYZE_LIVE) {
-            ((Plotter) Screens.get(Screens.size() - 1).second[2]).setPlotting(false);
+        if(lastScreens.get(lastScreens.size() - 1).screen == Screens.ANALYZE_LIVE) {
+            ((Plotter) lastScreens.get(lastScreens.size() - 1).data[2]).setPlotting(false);
         }
 
-        Pair<Screens.Type, Object[]> si = Screens.get(Screens.size() - 2);
+        ScreenInfo si = lastScreens.get(lastScreens.size() - 2);
 
         // Aktuellen Screen und alten löschen
-        Screens.rm(Screens.size() - 1);
-        Screens.rm(Screens.size() - 1);
+        lastScreens.remove(lastScreens.size() - 1);
+        lastScreens.remove(lastScreens.size() - 1);
 
-
-        switch(si.first) {
+        switch(si.screen) {
             case SENSOREN:
                 showSensoren();
                 return;
@@ -248,16 +271,10 @@ public class MainActivity extends ActionBarActivity
                 showAnalyze();
                 return;
             case ANALYZE_LIVE:
-                showAnalyzeLive(String.valueOf(si.second[0].toString()), Integer.valueOf(si.second[1].toString()));
+                showAnalyzeLive(String.valueOf(si.data[0].toString()), Integer.valueOf(si.data[1].toString()));
                 return;
             case ANALYZE_DATABASE:
                 showAnalyzeDatabase();
-                return;
-            case ANALYZE_FEATURES_OVERVIEW:
-                showAnalyzeFeatures();
-                return;
-            case ANALYZE_FEATURES_DETAILED:
-                showAnalyzeFeaturesData(String.valueOf(si.second[0]));
                 return;
             case OPTIONS:
                 showOptions();
@@ -285,10 +302,8 @@ public class MainActivity extends ActionBarActivity
      */
     public void showAnalyzeDatabase()
     {
-        Screens.add(Screens.Type.ANALYZE_DATABASE);
+        addScreen(Screens.ANALYZE_DATABASE);
         setContentView(R.layout.activity_main);
-
-        initActionBarMenu();
 
         Set<PlotConfiguration> configurations = new HashSet<>();
         Collection<SensorCollector> sCollectors = SensorDataCollectorService.getInstance().getSCM().getSensorCollectors().values();
@@ -316,6 +331,7 @@ public class MainActivity extends ActionBarActivity
         final Map<String, PlotConfiguration> showConfigs = new HashMap<>();
         StringBuilder query = new StringBuilder();
         for(PlotConfiguration configuration : configurations) {
+            // TODO My result in a crash after a update if a new table is
             query.append("SELECT * FROM (SELECT '").append(configuration.sensorName).append("' AS Name, '").append(configuration.deviceID).append("' AS Device, id AS Count FROM ").append(SQLTableName.PREFIX).append(configuration.deviceID).append(configuration.tableName).append(" ORDER BY id DESC LIMIT 1) UNION ");
             showConfigs.put(configuration.sensorName + configuration.deviceID, configuration);
         }
@@ -337,7 +353,7 @@ public class MainActivity extends ActionBarActivity
         SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
         Collections.sort(values);
         AnalyzeRowAdapter analyze = new AnalyzeRowAdapter(this, R.layout.listitemueberblick, values);
-        sadapter.addSection(getString(R.string.analyze_analyze_database), analyze);
+        sadapter.addSection(getString(R.string.analyze_analyze), analyze);
 
         final ListView lv = (ListView) findViewById(R.id.mainlist);
         lv.setAdapter(sadapter);
@@ -368,9 +384,10 @@ public class MainActivity extends ActionBarActivity
 
                     dialog.show(getSupportFragmentManager(), "GPSDatabaseDialog");
                 } else if(showConfigs.containsKey(sensorName + deviceID)) {
-                    DatabaseSensorDialog dialog = new DatabaseSensorDialog(MainActivity.this);
+                    DatabaseSensorDialog dialog = new DatabaseSensorDialog();
+                    dialog.setContext(MainActivity.this);
                     dialog.setPlotConfig(showConfigs.get(sensorName + deviceID));
-                    dialog.show();
+                    dialog.show(getSupportFragmentManager(), "DatabaseSensorDialogFragment");
                 }
             }
 
@@ -382,154 +399,6 @@ public class MainActivity extends ActionBarActivity
     }
 
 
-    public void showAnalyzeFeatures()
-    {
-        // init
-        Screens.add(Screens.Type.ANALYZE_FEATURES_OVERVIEW);
-        setContentView(R.layout.activity_main);
-        initActionBarMenu();
-        List<Triple<String, String, String>> activeSensors = new ArrayList<>();
-
-        // devices
-        Set<String> devices = ListenerService.getDevices();
-
-        // select active sensors
-        Set<Integer> enabledSensors = SensorDataCollectorService.getInstance().getSCM().getEnabledCollectors();
-        for(Integer enabledSensor : enabledSensors) {
-            String name = SensorDataUtil.getSensorType(enabledSensor);
-            for(String device : devices) {
-                if(enabledSensor > 0) {
-                    SensorCollector sc = SensorDataCollectorService.getInstance().getSCM().getSensorCollectors().get(enabledSensor);
-                    if(sc.isRegistered && sc.getPlotter(device) != null) {
-                        activeSensors.add(new Triple<>(StringUtils.formatSensorName(name), getString(R.string.analyze_analyzelive_collecting), device));
-                    }
-                } else {
-                    CustomCollector cc = SensorDataCollectorService.getInstance().getSCM().getCustomCollectors().get(enabledSensor);
-                    if(cc.isRegistered() && cc.getPlotter(device) != null && cc.getPlotter(device).plottingEnabled()) {
-                        activeSensors.add(new Triple<>(StringUtils.formatSensorName(name), getString(R.string.analyze_analyzelive_collecting), device));
-                    } else if(cc.isRegistered() && cc.getPlotter(device) != null && SensorDataUtil.getSensorType(cc.getType()).equals("TYPE_GPS")) {
-                        activeSensors.add(new Triple<>(StringUtils.formatSensorName(name), getString(R.string.analyze_analyzelive_collecting), device));
-                    }
-                }
-            }
-        }
-        Collections.sort(activeSensors);
-
-        // adapter
-        SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
-        AnalyzeRowAdapter analyze = new AnalyzeRowAdapter(this, R.layout.listitemueberblick, activeSensors);
-        sadapter.addSection(getString(R.string.analyze_analyze_features), analyze);
-
-        // listener
-        final ListView lv = (ListView) findViewById(R.id.mainlist);
-        lv.setAdapter(sadapter);
-        lv.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                View child = view.findViewById(R.id.list_item_ueberblick_title);
-
-                if(!(child instanceof TextView)) {
-                    return;
-                }
-
-                String text = ((TextView) child).getText().toString();
-
-                if("Accelerometer".equals(text)) {
-                    Screens.add(Screens.Type.ANALYZE_FEATURES_DETAILED, new Object[]{ text });
-                    setContentView(R.layout.analyze_features_entry);
-                    showAnalyzeFeaturesData(text);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.analyze_features_notify, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-
-    public void showAnalyzeFeaturesData(String sensor)
-    {
-        final AnalyzeFeatureAdapter afaLeft = new AnalyzeFeatureAdapter(this);
-        final AnalyzeFeatureAdapter afaRight = new AnalyzeFeatureAdapter(this);
-
-        SensorCollector sc = SensorDataCollectorService.getInstance().getSCM().getSensorCollectors().get(SensorDataUtil.getSensorTypeInt("TYPE_" + sensor.toUpperCase()));
-        if(!(sc instanceof AccelerometerSensorCollector)) {
-            return;
-        }
-        final AccelerometerSensorCollector asc = (AccelerometerSensorCollector) sc;
-
-        Thread observer = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                FE features = asc.getFeature(DeviceID.get(MainActivity.this));
-                if(!features.isRunning()) {
-                    features.start();
-                }
-
-                int winCou = 0;
-
-                while(features.isRunning()) {
-                    List<Window> windows = features.getWindows();
-                    int size = windows.size();
-                    if(size == winCou) {
-                        continue;
-                    }
-                    winCou = size;
-                    int side = 0;
-                    final Window window = windows.get(size - 1);
-
-                    NavigableMap<String, Map<String, Double>> data = window.getFeatures().get();
-                    for(String title : data.keySet()) {
-                        Map<String, Double> result = data.get(title);
-                        if(side % 2 == 0) {
-                            afaLeft.addFeature(title, new String[]{ StringUtils.formatFeatureValues(result.get("0")), StringUtils.formatFeatureValues(result.get("1")), StringUtils.formatFeatureValues(result.get("2")) });
-                        } else {
-                            afaRight.addFeature(title, new String[]{ StringUtils.formatFeatureValues(result.get("0")), StringUtils.formatFeatureValues(result.get("1")), StringUtils.formatFeatureValues(result.get("2")) });
-                        }
-                        side++;
-                    }
-
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            TextView windowID = (TextView) findViewById(R.id.window);
-                            if(windowID == null) {
-                                return;
-                            }
-                            windowID.setText("Window " + window.getId());
-
-                            TextView range = (TextView) findViewById(R.id.range);
-                            range.setText("(" + window.getStart() + " - " + window.getEnd() + ")");
-
-                            afaLeft.notifyDataSetChanged();
-                            ListView lv = (ListView) findViewById(R.id.left_column);
-                            lv.setAdapter(afaLeft);
-
-                            afaRight.notifyDataSetChanged();
-                            ListView lv2 = (ListView) findViewById(R.id.right_column);
-                            lv2.setAdapter(afaRight);
-                        }
-                    });
-                }
-            }
-        });
-        observer.start();
-
-        ListView lv = (ListView) findViewById(R.id.left_column);
-        lv.setAdapter(afaLeft);
-
-        ListView lv2 = (ListView) findViewById(R.id.right_column);
-        lv2.setAdapter(afaRight);
-
-        // TODO STORE IN DATABASE...
-    }
-
-
     /**
      * @param start Anfangszeit für die Anzeige der Daten
      * @param end   Endzeitpunkt
@@ -537,7 +406,7 @@ public class MainActivity extends ActionBarActivity
     @SuppressLint( { "SimpleDateFormat", "InflateParams" } )
     public void showAnalyzeDatabaseGPS(String start, String end)
     {
-        Screens.add(Screens.Type.ANALYZE_DATABASE);
+        addScreen(Screens.ANALYZE_DATABASE);
 
         if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) != ConnectionResult.SUCCESS) {
             Toast.makeText(getBaseContext(), getString(R.string.analyze_gps_notify), Toast.LENGTH_LONG).show();
@@ -597,7 +466,7 @@ public class MainActivity extends ActionBarActivity
 
     public void showAnalyzeDatabaseData(final PlotConfiguration pc, final String start, final String end, final boolean showActivity, final boolean showPosition, final boolean showPosture)
     {
-        Screens.add(Screens.Type.ANALYZE_DATABASE);
+        addScreen(Screens.ANALYZE_DATABASE);
         setContentView(R.layout.databaseshowplot);
 
         this.refreshGraphBuilderProgressBar(R.string.analyze_analyzelive_loading1, 1);
@@ -882,10 +751,9 @@ public class MainActivity extends ActionBarActivity
      */
     public void showActivities()
     {
-        Screens.add(Screens.Type.ACTIVITIES);
-        setContentView(R.layout.activity_main);
+        addScreen(Screens.ACTIVITIES);
 
-        initActionBarMenu();
+        setContentView(R.layout.activity_main);
 
         SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
 
@@ -951,7 +819,7 @@ public class MainActivity extends ActionBarActivity
 
     public void showActivityCorrection()
     {
-        Screens.add(Screens.Type.ACTIVITY_CORRECTION);
+        addScreen(Screens.ACTIVITY_CORRECTION);
         setContentView(R.layout.activity_correction);
 
         ArrayList<String> addEntry = new ArrayList<>();
@@ -1014,7 +882,7 @@ public class MainActivity extends ActionBarActivity
     @SuppressLint( "InflateParams" )
     public void showGPSAnalyze()
     {
-        Screens.add(Screens.Type.ANALYZE);
+        addScreen(Screens.ANALYZE);
 
         if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) != ConnectionResult.SUCCESS) {
             Toast.makeText(getBaseContext(), getString(R.string.analyze_gps_notify), Toast.LENGTH_LONG).show();
@@ -1061,14 +929,12 @@ public class MainActivity extends ActionBarActivity
     public void showAnalyze()
     {
         // init
-        Screens.add(Screens.Type.ANALYZE);
+        addScreen(Screens.ANALYZE);
         setContentView(R.layout.activity_main);
-
-        initActionBarMenu();
 
         // create adapter
         SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
-        sadapter.addSection(getString(R.string.analyze_analyze), new ArrayAdapter<>(getApplicationContext(), R.layout.listitem, new String[]{ getString(R.string.analyze_analyze_database), getString(R.string.analyze_analyze_features) }));
+        sadapter.addSection(getString(R.string.analyze_analyze), new ArrayAdapter<>(getApplicationContext(), R.layout.listitem, new String[]{ getString(R.string.analyze_analyze_database) }));
 
         List<Triple<String, String, String>> activeSensors = new ArrayList<>();
 
@@ -1109,14 +975,7 @@ public class MainActivity extends ActionBarActivity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 if(view instanceof TextView) {
-                    String text = ((TextView) view).getText().toString();
-
-                    if(getString(R.string.analyze_analyze_database).equals(text)) {
-                        showAnalyzeDatabase();
-                    } else if(getString(R.string.analyze_analyze_features).equals(text)) {
-                        showAnalyzeFeatures();
-                        return;
-                    }
+                    showAnalyzeDatabase();
                 }
 
                 if(!(view instanceof RelativeLayout)) {
@@ -1169,10 +1028,10 @@ public class MainActivity extends ActionBarActivity
             XYPlot sensorHistoryPlot = (XYPlot) findViewById(R.id.historyPlot);
 
             Plotter plotter = sc.getPlotter(deviceID);
-            Screens.add(Screens.Type.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
+            addScreen(Screens.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
             plotter.startPlotting(sensorLevelsPlot, sensorHistoryPlot);
 
-            if(!de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_DISABLE) {
+            if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
                 plotter.setPlotting(true);
             } else {
                 Toast.makeText(this, R.string.analyze_analyzelive_disabled, Toast.LENGTH_SHORT).show();
@@ -1190,10 +1049,10 @@ public class MainActivity extends ActionBarActivity
                     XYPlot sensorHistoryPlot = (XYPlot) findViewById(R.id.historyPlot);
 
                     Plotter plotter = cc.getPlotter(deviceID);
-                    Screens.add(Screens.Type.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
+                    addScreen(Screens.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
                     plotter.startPlotting(sensorLevelsPlot, sensorHistoryPlot);
 
-                    if(!de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_DISABLE) {
+                    if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
                         plotter.setPlotting(true);
                     } else {
                         Toast.makeText(this, R.string.analyze_analyzelive_disabled, Toast.LENGTH_SHORT).show();
@@ -1209,123 +1068,19 @@ public class MainActivity extends ActionBarActivity
     }
 
 
-    /**
-     * Zeigt optionen screen an
-     */
-    public void showOptions()   // TODO This method is to large and should be split up in several methods!
+    public void showOptions()
     {
-        Screens.add(Screens.Type.OPTIONS);
-        setContentView(R.layout.activity_main);
+        Intent i = new Intent(this, SettingActivity.class);
+        startActivityForResult(i, 1000);
+    }
 
-        initActionBarMenu();
 
-        final String[] matrix = { "_id", "name", "value" };
-        final String[] columns = { "name", "value" };
-        final int[] layouts = { android.R.id.text1, android.R.id.text2 };
-        MatrixCursor cursor = new MatrixCursor(matrix);
-        cursor.addRow(new Object[]{ 0, getString(R.string.option_about_version), getString(R.string.option_about_version_description) });
-        cursor.addRow(new Object[]{ 1, getString(R.string.option_about_developer), getString(R.string.option_about_developer_description) });
-        cursor.addRow(new Object[]{ 2, getString(R.string.option_about_institution), getString(R.string.option_about_instituiton_description) });
-
-        AboutAdapter sadapter = new AboutAdapter(this, 0);
-        sadapter.addSection(getString(R.string.option_export_title), new ArrayAdapter<>(getApplicationContext(), R.layout.listitem, UIUtils.getString(R.string.option_export_delete, R.string.option_export_copy, R.string.option_export_export)));
-        sadapter.addSection(getString(R.string.option_about_title), new SimpleCursorAdapter(this, R.layout.about, cursor, columns, layouts, 0));
-
-        final ListView lv = (ListView) findViewById(R.id.mainlist);
-        lv.setAdapter(sadapter);
-
-        lv.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, final long id)
-            {
-                if(id == 3) {
-                    SelectExportTables dialog = new SelectExportTables();
-                    dialog.show(getSupportFragmentManager(), "SelectExportTables");
-                    return;
-                }
-
-                final ListView activityMain = (ListView) findViewById(R.id.mainlist);
-                activityMain.setEnabled(false);
-
-                final FrameLayout progressBarHolder = (FrameLayout) findViewById(R.id.progressBarHolder);
-                progressBarHolder.setVisibility(View.VISIBLE);
-
-                final Thread processTask = new Thread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        if(id == 1) {
-                            boolean success = SQLDBController.getInstance().deleteDatabase();
-
-                            if(success) {
-                                UIUtils.makeToast(MainActivity.this, R.string.option_export_delete_success, Toast.LENGTH_SHORT);
-                            } else {
-                                UIUtils.makeToast(MainActivity.this, R.string.option_export_delete_failed1, Toast.LENGTH_SHORT);
-                            }
-                        } else if(id == 2) {
-                            int message = SensorDataUtil.copyFileToSDCard(getBaseContext(), "db" + System.currentTimeMillis() + ".sqlite", new File(SQLDBController.getInstance().getPath()));
-                            UIUtils.makeToast(MainActivity.this, message, Toast.LENGTH_SHORT);
-                        }
-
-                        MainActivity.this.runOnUiThread(new Runnable()
-                        {
-                            public void run()
-                            {
-                                progressBarHolder.setVisibility(View.GONE);
-                                activityMain.setEnabled(true);
-                            }
-                        });
-                    }
-                });
-
-                if(id == 1) {
-                    AlertDialog.Builder confirm = new AlertDialog.Builder(MainActivity.this);
-                    confirm.setTitle(R.string.option_export_delete);
-                    confirm.setMessage(R.string.option_export_delete_message);
-                    confirm.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            processTask.start();
-                        }
-                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            MainActivity.this.runOnUiThread(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    progressBarHolder.setVisibility(View.GONE);
-                                    activityMain.setEnabled(true);
-                                }
-                            });
-                        }
-                    }).setIcon(android.R.drawable.ic_dialog_alert);
-
-                    View checkBoxView = View.inflate(MainActivity.this, R.layout.checkbox, null);
-                    CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox);
-                    checkBox.setText(R.string.option_export_delete_message_checkbox);
-                    confirm.setView(checkBoxView);
-
-                    final AlertDialog dialog = confirm.show();
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-                    {
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-                        {
-                            boolean currentState = dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled();
-                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!currentState);
-                        }
-                    });
-                } else if(id == 2) {
-                    processTask.start();
-                }
-            }
-        });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if(requestCode == 1000) {        // workaround -just want to be sure that the main screen is shown if the preference activity stopped
+            showSensoren();
+        }
     }
 
 
@@ -1334,10 +1089,8 @@ public class MainActivity extends ActionBarActivity
      */
     public void showSensoren()
     {
-        Screens.add(Screens.Type.SENSOREN);
+        addScreen(Screens.SENSOREN);
         setContentView(R.layout.activity_main);
-
-        initActionBarMenu();
 
         // Fülle Liste
         List<String> valueList = new ArrayList<>();
@@ -1383,10 +1136,8 @@ public class MainActivity extends ActionBarActivity
 
     public void showAdditionalDevices()
     {
-        Screens.add(Screens.Type.ADDITIONAL_DEVICES);
+        addScreen(Screens.ADDITIONAL_DEVICES);
         setContentView(R.layout.activity_main);
-
-        initActionBarMenu();
 
         SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
 
@@ -1407,10 +1158,8 @@ public class MainActivity extends ActionBarActivity
 
     public void showSensorenDetail()
     {
-        Screens.add(Screens.Type.SENSOREN_DETAILS);
+        addScreen(Screens.SENSOREN_DETAILS);
         setContentView(R.layout.activity_main);
-
-        initActionBarMenu();
 
         SeparatedListAdapter sadapter = new SeparatedListAdapter(this, 0);
 
@@ -1438,6 +1187,13 @@ public class MainActivity extends ActionBarActivity
 
                     if(!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                         Toast.makeText(getBaseContext(), R.string.sensor_collector_gps_notify, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if(Build.VERSION.SDK_INT >= 23 &&
+                            ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getBaseContext(), R.string.sensor_collector_gps_permission, Toast.LENGTH_LONG).show();
                         return;
                     }
                 }
@@ -1474,13 +1230,15 @@ public class MainActivity extends ActionBarActivity
                             BroadcastService.getInstance().sendMessage("/sensor/unregister", String.valueOf(sensorID));
                             DBUtils.updateSensorStatus(sensorID, (1000 * 1000) / sc.getSensorRate(), 0); // microseconds -> hertz
                             chBx.setChecked(false);
-                            SensorDataUtil.flushSensorDataCache(sensorID);
+                            SensorDataUtil.flushSensorDataCache(sensorID, DeviceID.get(MainActivity.this));
                         }
                     } else {
                         if(!service.getSCM().enableCollectors(sensorID)) {
                             Toast.makeText(getBaseContext(), getString(R.string.sensor_collector_generel_notify2), Toast.LENGTH_LONG).show();
                         } else {
-                            BroadcastService.getInstance().sendMessage("/sensor/register", "[" + sensorID + ", " + sc.getSensorRate() + "]");
+                            if(Settings.WEARSENSOR) {
+                                BroadcastService.getInstance().sendMessage("/sensor/register", "[" + sensorID + ", " + sc.getSensorRate() + "]");
+                            }
                             DBUtils.updateSensorStatus(sensorID, (1000 * 1000) / sc.getSensorRate(), 1); // microseconds -> hertz
                             service.getSCM().registerSensorCollector(sensorID);
                             chBx.setChecked(true);
@@ -1495,12 +1253,13 @@ public class MainActivity extends ActionBarActivity
 
     public void showSensorSelftest(Sensor sensor)
     {
+        addScreen(Screens.SENSOREN_SELFTEST);
+
         if(sensor == null) {
             sensor = this.lastSensorSelfTest.getSensor();
         }
 
         lastSensorSelfTest = new SensorSelfTest(this, sensor);
-        Screens.add(Screens.Type.SENSOREN_SELFTEST, new Object[]{ lastSensorSelfTest });
     }
 
 
@@ -1525,7 +1284,8 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void run()
             {
-                ArrayAdapter<String> postureAdapter = (ArrayAdapter<String>) AdapterController.getInstance().get("ActivityScreenPosture");
+                @SuppressWarnings( "unchecked" )  // it is save
+                        ArrayAdapter<String> postureAdapter = (ArrayAdapter<String>) AdapterController.getInstance().get("ActivityScreenPosture");
                 if(postureAdapter == null) {
                     return;
                 }
@@ -1544,7 +1304,8 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void run()
             {
-                ArrayAdapter<String> positionAdapter = (ArrayAdapter<String>) AdapterController.getInstance().get("ActivityScreenPosition");
+                @SuppressWarnings( "unchecked" ) // it is save
+                        ArrayAdapter<String> positionAdapter = (ArrayAdapter<String>) AdapterController.getInstance().get("ActivityScreenPosition");
                 if(positionAdapter == null) {
                     return;
                 }
@@ -1623,41 +1384,6 @@ public class MainActivity extends ActionBarActivity
     }
 
 
-    private void initActionBarMenu()
-    {
-        // navigation drawer
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ListView drawerList = (ListView) findViewById(R.id.left_drawer);
-        drawerList.setAdapter(this.navigationMenu);
-
-        final CharSequence mTitle = getTitle();
-        final CharSequence mDrawerTitle = mTitle;
-        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.ns_menu_open, R.string.ns_menu_close)
-        {
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view)
-            {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView)
-            {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        // Set the drawer toggle as the DrawerListener
-        drawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerToggle.syncState();
-    }
-
-
     private Notification createBasicNotification()
     {
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -1705,27 +1431,72 @@ public class MainActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item)
     {
         // Handle item selection
-        if(mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        } else if(item.getItemId() == R.id.action_analyze) {
-            if(Screens.current().first != Screens.Type.ANALYZE) {
+        if(item.getItemId() == R.id.action_analyze) {
+            if(getCurrentScreen().screen != Screens.ANALYZE) {
                 showAnalyze();
             }
             return true;
         } else if(item.getItemId() == R.id.action_sensoren) {
-            if(Screens.current().first != Screens.Type.SENSOREN) {
+            if(getCurrentScreen().screen != Screens.SENSOREN) {
                 showSensoren();
             }
             return true;
         } else if(item.getItemId() == R.id.action_options) {
-            if(Screens.current().first != Screens.Type.OPTIONS) {
+            if(getCurrentScreen().screen != Screens.OPTIONS) {
                 showOptions();
             }
             return true;
+            //        } else if(item.getItemId() == R.id.menu_createactivity) {
+            //            CreateActivityDialog cs = new CreateActivityDialog();
+            //            cs.show(getSupportFragmentManager(), "CreateActivityDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_createsubactivity) {
+            //            CreateSubActivityDialog cs = new CreateSubActivityDialog();
+            //            cs.show(getSupportFragmentManager(), "CreateSubActivityDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_createposition) {
+            //            CreatePostitionDialog cs = new CreatePostitionDialog();
+            //            cs.show(getSupportFragmentManager(), "CreatePostitionDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_createposture) {
+            //            CreatePostureDialog cs = new CreatePostureDialog();
+            //            cs.show(getSupportFragmentManager(), "CreatePostureDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_deleteactivity) {
+            //            DeleteActivityDialog cs = new DeleteActivityDialog();
+            //
+            //            cs.setMainActivity(this);
+            //            cs.show(getSupportFragmentManager(), "DeleteActivityDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_deletesubactivity) {
+            //            DeleteSubActivity cs = new DeleteSubActivity();
+            //
+            //            cs.setMainActivity(this);
+            //            cs.show(getSupportFragmentManager(), "DeleteSubActivity");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_deleteposition) {
+            //            DeletePositionDialog cs = new DeletePositionDialog();
+            //
+            //            cs.setMainActivity(this);
+            //            cs.show(getSupportFragmentManager(), "DeletePositionDialog");
+            //
+            //            return true;
+            //        } else if(item.getItemId() == R.id.menu_deleteposture) {
+            //            DeletePostureDialog cs = new DeletePostureDialog();
+            //
+            //            cs.setMainActivity(this);
+            //            cs.show(getSupportFragmentManager(), "DeletePostureDialog");
+            //
+            //            return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
-
     }
 
 
@@ -1735,13 +1506,13 @@ public class MainActivity extends ActionBarActivity
         super.onResume();
 
         // resume sensorselftest (activate sensors)
-        if(this.lastSensorSelfTest != null && Screens.size() > 0 && Screens.get(Screens.size() - 1).first == Screens.Type.SENSOREN_SELFTEST) {
+        if(this.lastSensorSelfTest != null && lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.SENSOREN_SELFTEST) {
             this.lastSensorSelfTest.resumeTest();
         }
 
         // resume live plotter
-        if(this.lastSensorSelfTest != null && Screens.size() > 0 && Screens.get(Screens.size() - 1).first == Screens.Type.ANALYZE_LIVE) {
-            ((Plotter) Screens.get(Screens.size() - 1).second[2]).setPlotting(true);
+        if(this.lastSensorSelfTest != null && lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.ANALYZE_LIVE) {
+            ((Plotter) lastScreens.get(lastScreens.size() - 1).data[2]).setPlotting(true);
         }
 
         // hide notifications
@@ -1760,8 +1531,8 @@ public class MainActivity extends ActionBarActivity
         }
 
         // stop live plotter
-        if(this.lastSensorSelfTest != null && Screens.size() > 0 && Screens.get(Screens.size() - 1).first == Screens.Type.ANALYZE_LIVE) {
-            ((Plotter) Screens.get(Screens.size() - 1).second[2]).setPlotting(false);
+        if(this.lastSensorSelfTest != null && lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.ANALYZE_LIVE) {
+            ((Plotter) lastScreens.get(lastScreens.size() - 1).data[2]).setPlotting(false);
         }
 
         // show notification
@@ -1785,8 +1556,8 @@ public class MainActivity extends ActionBarActivity
         }
 
         // stop live plotter
-        if(this.lastSensorSelfTest != null && Screens.size() > 0 && Screens.get(Screens.size() - 1).first == Screens.Type.ANALYZE_LIVE) {
-            ((Plotter) Screens.get(Screens.size() - 1).second[2]).setPlotting(false);
+        if(this.lastSensorSelfTest != null && lastScreens.size() > 0 && lastScreens.get(lastScreens.size() - 1).screen == Screens.ANALYZE_LIVE) {
+            ((Plotter) lastScreens.get(lastScreens.size() - 1).data[2]).setPlotting(false);
         }
 
         // stop service
@@ -1798,12 +1569,12 @@ public class MainActivity extends ActionBarActivity
 
         // stop wearable app
         BroadcastService.getInstance().sendMessage("/activity/destroy", "false");
-        if(ListenerService.getDevices().size() > 1) {
-            //            Toast.makeText(this, getString(R.string.app_toast_destroy1), Toast.LENGTH_SHORT).show();
-        }
+        //        if(ListenerService.getDevices().size() > 1) {
+        //            Toast.makeText(this, getString(R.string.app_toast_destroy1), Toast.LENGTH_SHORT).show();
+        //        }
 
         // flush cache
-        SensorDataUtil.flushSensorDataCache(0);
+        SensorDataUtil.flushSensorDataCache(0, DeviceID.get(this));
 
         // clean up
         ActivityController.getInstance().shutdown();

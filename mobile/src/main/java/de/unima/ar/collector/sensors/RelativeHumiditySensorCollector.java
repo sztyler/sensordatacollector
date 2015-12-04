@@ -118,7 +118,7 @@ public class RelativeHumiditySensorCollector extends SensorCollector
 
     public static void createDBStorage(String deviceID)
     {
-        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.RELATIVE + " (id INTEGER PRIMARY KEY, " + valueNames[1] + " INTEGER UNIQUE, " + valueNames[0] + " REAL)";
+        String sqlTable = "CREATE TABLE IF NOT EXISTS " + SQLTableName.PREFIX + deviceID + SQLTableName.RELATIVE + " (id INTEGER PRIMARY KEY, " + valueNames[1] + " INTEGER, " + valueNames[0] + " REAL)";
         SQLDBController.getInstance().execSQL(sqlTable);
     }
 
@@ -132,15 +132,15 @@ public class RelativeHumiditySensorCollector extends SensorCollector
             return;
         }
 
-        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues);
+        List<String[]> clone = DBUtils.manageCache(deviceID, cache, newValues, (Settings.DATABASE_CACHE_SIZE + type * 200));
         if(clone != null) {
             SQLDBController.getInstance().bulkInsert(tableName, clone);
         }
     }
 
 
-    public static void flushDBCache()
+    public static void flushDBCache(String deviceID)
     {
-        DBUtils.flushCache(SQLTableName.RELATIVE, cache);
+        DBUtils.flushCache(SQLTableName.RELATIVE, cache, deviceID);
     }
 }

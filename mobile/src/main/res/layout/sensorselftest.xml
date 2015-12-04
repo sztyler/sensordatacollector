@@ -13,7 +13,7 @@
 	    android:paddingLeft="7dip"
 	    android:paddingEnd="7dip"
         android:paddingRight="7dip"
-	    android:background="#3E3D3D"
+	    android:background="#B40808"
         android:textColor="@color/white"
         android:textAppearance="?android:attr/listSeparatorTextViewStyle" />
 

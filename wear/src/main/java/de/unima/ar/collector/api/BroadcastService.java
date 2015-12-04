@@ -26,7 +26,7 @@ public class BroadcastService implements GoogleApiClient.ConnectionCallbacks, Go
     private static BroadcastService SERVICE = null;
     private static GoogleApiClient  gac     = null;
 
-    private static final String TAG = "de.unima.ar.collector.wear.broadcast";
+    private static final String TAG = "wear.broadcast";
 
 
     private BroadcastService(Context context)

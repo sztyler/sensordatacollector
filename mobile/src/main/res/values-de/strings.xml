@@ -9,8 +9,8 @@
     <string name="app_toast_bluetooth">Gerät außer Reichweite! Bluetooth Verbindung verloren.</string>
     <string name="app_toast_bluetooth_reestablished">Bluetooth Verbindung wiederhergestellt!</string>
     <string name="app_icon_antenna">Übersicht</string>
-    <string name="app_icon_statistics">Analyse</string>
-    <string name="app_icon_services">Exportieren</string>
+    <string name="app_icon_statistics">Daten auswerten</string>
+    <string name="app_icon_services">Dienste</string>
     <string name="service_name">SensorDataCollectorService</string>
 
     <!-- Main Screen -->
@@ -46,13 +46,15 @@
     <string name="sensor_selftest_notdetected">nicht erkannt!</string>
     <string name="sensor_frequency_notify">Der Sensor muss gestopped werden, bevor die Frequenz geändert werden kann!</string>
     <string name="sensor_frequency_dialog_title">Frequenz</string>
-    <string name="sensor_frequency_dialog_text">Bitte geben Sie die Frequenz (Hz) ein:\n (Warnung: Die App wird nicht mehr reagieren, wenn der Wert zu hoch ist!)</string>
+    <string name="sensor_frequency_dialog_text">Bitte geben Sie die Frequenz (<u><i><b>Hz</b></i></u>) ein:\n(Warnung: Die App wird nicht mehr reagieren, wenn der Wert zu hoch ist!)</string>
+    <string name="sensor_frequency_dialog_text2">Bitte geben Sie die Frequenz (<u><i><b>ms</b></i></u>) ein:\n(Dieser Sensor reagiert möglicherweise langsamer als festgelegt!)</string>
     <string name="sensor_frequency_dialog_button_ok">OK</string>
     <string name="sensor_frequency_dialog_button_cancel">Abbruch</string>
     <string name="sensor_frequency_changed_success">Frequenz erfolgreich gespeichert!</string>
     <string name="sensor_frequency_changed_failed">Der eingegebene Wert ist keine gültige Zahl!</string>
     <string name="sensor_frequency_button">Freq</string>
     <string name="sensor_collector_gps_notify">Die GPS Funktion ist nicht aktiviert oder nicht verfügbar! Bitte prüfe Sie ihre Systemeinstellungen.</string>
+    <string name="sensor_collector_gps_permission">Die Positionserkennungsrechte wurden entzoggen! Bitte machen Sie das rückgängig.</string>
     <string name="sensor_collector_generel_notify1">Fehler beim deaktivieren des Sensors! Bitte beenden Sie die App und starten sie diese neu.</string>
     <string name="sensor_collector_generel_notify2">Dieser Sensor wird nicht unterstützt!</string>
     <string name="sensor_collector_custom_notify">Fehler beim aktivieren des Sensors!</string>
@@ -89,7 +91,7 @@
     <string name="activity_posture_running">rennen</string>
     <string name="activity_posture_sitting">sitzen</string>
     <string name="activity_posture_standing">stehen</string>
-    <string name="activity_posture_recumbency">liegen</string>
+    <string name="activity_posture_lying">liegen</string>
     <string name="activity_posture_climbingup">klettern/steigen (hoch)</string>
     <string name="activity_posture_climbingdown">klettern/steigen (runter)</string>
     <string name="activity_posture_jumping">springen</string>
@@ -166,7 +168,7 @@
     <string name="activity_subactivities_coffeebreak">Kaffeepause</string>
     <string name="activity_subactivities_music">Musik hören</string>
     <string name="activity_subactivities_gotowork">zur Arbeit gehen</string>
-    <string name="activity_subactivities_gohome">nach Hause gehen</string>
+    <string name="activity_subactivities_gohome">nachhause gehen</string>
     <string name="activity_subactivities_tram">Straßenbahn</string>
 
     <string name="activity_dialog_cancel">Abbrechen</string>
@@ -193,9 +195,8 @@
     <string name="activity_correction_dialog_add_invalid">Ihre Eingabe ist ungültig!</string>
 
     <!-- Analyze -->
-    <string name="analyze_analyze">Analyse</string>
-    <string name="analyze_features_notify">Die Berechnung von Merkmalen für diesen Sensor ist nicht implementiert!</string>
-    <string name="analyze_analyze_database">Rohdaten plotten (Datenbank)</string>
+    <string name="analyze_analyze">Daten auswerten</string>
+    <string name="analyze_analyze_database">Aus der Datenbank</string>
     <string name="analyze_analyze_database_values">Werte</string>
     <string name="analyze_analyze_database_cache_enabled">Caching aktiviert. Die Daten werden verzögert in der Datenbank gespeichert.</string>
     <string name="analyze_analyze_database_dialog_title">Auswahl des Zeitintervalls</string>
@@ -207,8 +208,7 @@
     <string name="analyze_analyze_database_dialog_notify1">Please select timerange in which from Time greater than to Time!</string>
     <string name="analyze_analyze_database_dialog_notify2">Bitte wählen Sie ein gültiges Zeitintervall aus!</string>
     <string name="analyze_analyze_database_dialog_notify3">Das ausgewählte Zeitintervall ist zu groß! Bitte wählen Sie ein kleineres Zeitintervall.</string>
-    <string name="analyze_analyze_features">Echtzeitberechnung von Merkmalen</string>
-    <string name="analyze_analyzelive">Sensor Live Daten</string>
+    <string name="analyze_analyzelive">Live Daten auswerten</string>
     <string name="analyze_analyzelive_collecting">Sammeln</string>
     <string name="analyze_analyzelive_device">Gerät</string>
     <string name="analyze_analyzelive_disabled">Die Echtzeitdarstellung ist derzeit deaktiviert!</string>
@@ -224,15 +224,18 @@
     <string name="analyze_analyzelive_loading9">Vorgang abgeschlossen</string>
 
     <!-- Export / About -->
-    <string name="option_export_title">Optionen</string>
+    <string name="option_export_title">Datenbank</string>
     <string name="option_export_delete">Datenbank löschen</string>
+    <string name="option_export_delete_desc">Löscht alle Aufzeichnungen und Einstellungen</string>
     <string name="option_export_delete_message">Sind Sie wirklich sicher das Sie die Datenbank vollständig löschen möchten? Bitte bestätigen Sie diese Aktion.</string>
     <string name="option_export_delete_message_checkbox">Ja! Ich möchte die gesamte Datenbank löschen!</string>
     <string name="option_export_delete_success">Datenbank wurde gelöscht!</string>
-    <string name="option_export_delete_failed1">Die Datenbank konnte nicht gelöscht werden! Bitte überprüfen Sie ob alle Collectoren abgeschaltet sind.</string>
-    <string name="option_export_export_failed2">Die Datenbank konnte nicht exportiert werden! Bitte überprüfen Sie ob alle Collectoren abgeschaltet sind.</string>
-    <string name="option_export_copy">Datenbank auf SD-Karte kopieren</string>
-    <string name="option_export_export">Tabellen auf die SD-Karte exportieren (CSV)</string>
+    <string name="option_export_delete_failed1">Die Datenbank konnte nicht gelöscht werden! Bitte überprüfen Sie ob alle Sensoren abgeschaltet sind.</string>
+    <string name="option_export_export_failed2">Die Datenbank konnte nicht exportiert werden! Bitte überprüfen Sie ob alle Sensoren abgeschaltet sind.</string>
+    <string name="option_export_copy">Datenbank sichern</string>
+    <string name="option_export_copy_desc">Kopiert die SQLite DB auf die SD-Karte</string>
+    <string name="option_export_export">Exportiere Tabellen (CSV)</string>
+    <string name="option_export_export_desc">Konvertiert die SQLite Tabellen in CSV Dateien</string>
     <string name="option_export_dialog_title">Auswahl der Tabellen</string>
     <string name="option_export_dialog_cancel">Abbruch</string>
     <string name="option_export_dialog_ok">Exportieren</string>
@@ -241,17 +244,37 @@
     <string name="option_export_erroropenfile">Es trat ein Fehler beim Öffnen der Datei auf!</string>
     <string name="option_export_errorwritingfile">Es trat ein Fehler beim Schreiben auf!</string>
     <string name="option_export_copysuccessful">Kopiervorgang erfolgreich abgeschlossen!</string>
-    <string name="option_export_filedoesnotexist">Die Datei existiert nicht!</string>
+    <string name="option_export_filedoesnotexist">Datenbank konnte nicht gelesen werden!</string>
     <string name="option_export_filewritesuccessful">Die Daten wurden erfolgreich geschrieben!</string>
+    <string name="option_export_fileexists">Fehler! Die Zieldatei existiert bereits!</string>
     <string name="option_export_success">Export erfolgreich abgeschlossen!</string>
     <string name="option_export_failed">Export fehlgeschlagen</string>
     <string name="option_about_title">Über</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.6.0</string>
+    <string name="option_about_version_description">1.5.17</string>
     <string name="option_about_developer">Entwickler</string>
-    <string name="option_about_developer_description">Timo Sztyler (2014/2015)\nFabian Kramm (2014)</string>
+    <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2016), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>
-    <string name="option_about_instituiton_description">Universität Mannheim</string>
+    <string name="option_about_institution_description">Universität Mannheim</string>
+
+    <!-- Preferences -->
+    <string name="sensors_preferences_category">Sensoren</string>
+    <string name="sensor_lowpass_title">Tiefpass Filter (Beschleunigungssensor)</string>
+    <string name="sensor_lowpass_desc">Trennt die Gravität und die lineare Beschleunigung</string>
+    <string name="sensor_frequency_title">Standard-Frequenz</string>
+    <string name="sensor_frequency_desc">Mikrofone und GPS werden hiervor nicht beeinflusst</string>
+    <string name="prefTitle">Einstellungen</string>
+    <string name="preferences_watch_category">Remote Geräte</string>
+    <string name="preferences_watch_sensorenabled">Sensordaten aufzeichnen</string>
+    <string name="preferences_watch_sensorenabled_desc">Sendet alle Befehle an alle verfügbaren Geräte</string>
+    <string name="preferences_watch_sensorenabled_hint">Wenn Sensoren aktiv sind, dann müssen sie neu gestartet werden um die Änderung wirksam zu machendaten.</string>
+    <string name="preferences_watch_directenabled">Sofortige Übertragung</string>
+    <string name="preferences_watch_directenabled_desc">Die aufgezeichneten Daten werden sofort übertragen</string>
+    <string name="preferences_watch_directenabled_error">Einstellung konnte nicht übernommen werden! Bitte prüfen Sie ob alle Sensoren deaktiviert sind.</string>
+    <string name="preferences_frequency_input_invalid">Eingabe ungültig! Die Frequenz muss zwischen 1 und 250 liegen.</string>
+    <string name="preferences_frequency_input_valid">Der vorgegebene Frequenzwert wird von einem Sensor ignoriert wenn er bereits zuvor manuell editiert wurde!</string>
+    <string name="preferences_plotter_enabled">Live Plotter</string>
+    <string name="preferences_plotter_enabled_desc">Sollte deaktiviert werden, wenn es Performance Probleme gibt</string>
 
     <!-- Wearable Listener -->
     <string name="listener_app_connected">Verbindung zu einem externen Sensorgerät hergestellt!</string>
@@ -262,9 +285,6 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="grey">#A0A0A0</color>
-
-    <!-- Settings -->
-    <string name="settings_title">Einstellungen</string>
 
     <!-- Others -->
     <string name="dialog_ok">OK</string>

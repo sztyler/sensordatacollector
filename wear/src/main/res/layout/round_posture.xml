@@ -30,30 +30,30 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/green"
+            android:textColor="@color/dark_blue"
             android:textStyle="bold|italic"
             android:textSize="18sp"
-            android:text="Sitting"/>
+            android:text="@string/activity_general_loading"/>
 
         <TextView
             android:id="@+id/posture_position"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/green"
+            android:textColor="@color/dark_blue"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:text="(Office/Workplace)"/>
+            android:text="@string/activity_general_loading"/>
 
         <TextView
             android:id="@+id/posture_activity"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/green"
+            android:textColor="@color/dark_blue"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:text="(Desk Work)"/>
+            android:text="@string/activity_general_loading"/>
     </LinearLayout>
 
     <RelativeLayout

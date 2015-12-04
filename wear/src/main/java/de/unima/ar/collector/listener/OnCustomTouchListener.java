@@ -27,7 +27,7 @@ public class OnCustomTouchListener extends GestureDetector.SimpleOnGestureListen
 
         this.dismissOverlay = (DismissOverlayView) ((MainActivity) context).findViewById(R.id.dismiss_overlay);
         this.dismissOverlay.setIntroText(R.string.welcome_long_press_exit);
-        this.dismissOverlay.showIntroIfNecessary();
+        //        this.dismissOverlay.showIntroIfNecessary(); TODO - do I realy need this line?
     }
 
 

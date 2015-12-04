@@ -1,9 +1,7 @@
 package de.unima.ar.collector.database;
 
-import android.app.Activity;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.unima.ar.collector.MainActivity;
+import de.unima.ar.collector.R;
 import de.unima.ar.collector.api.BroadcastService;
 import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.sensors.SensorService;
@@ -26,12 +25,14 @@ public class DBObserver implements Runnable
     private long         lastTransfer;
     private boolean      isRunning;
     private Set<Integer> confirmed;
+    private boolean      wait;
 
 
     public DBObserver()
     {
         this.lastTransfer = 0;
         this.isRunning = true;
+        this.wait = false;
         this.confirmed = new HashSet<>();
     }
 
@@ -48,12 +49,41 @@ public class DBObserver implements Runnable
     }
 
 
+    public void forceSending()
+    {
+        while(!this.wait && this.isRunning) {
+            Log.d("TIMOSENSOR", "WAIT: " + this.wait + " -- " + this.isRunning);
+            Utils.sleep(1000);  // waits until the other running process is done
+        }
+
+        this.lastTransfer = 0;
+
+        synchronized(this) {
+            this.wait = false;
+            this.notify();
+        }
+    }
+
+
     private boolean verify()
     {
+        Log.d("TIMOSENSOR", "VERIFY");
         long currentTime = System.currentTimeMillis();
+
         if(this.lastTransfer + Settings.WEARTRANSFERIDLETIME > currentTime) {
             long idle = Math.abs(currentTime - (this.lastTransfer + Settings.WEARTRANSFERIDLETIME));
-            Utils.sleep((int) (idle % Integer.MAX_VALUE));
+            //            Utils.sleep((int) (idle % Integer.MAX_VALUE));
+            try {
+                Log.d("TIMOSENSOR", "SLEEP");
+                synchronized(this) {
+                    this.wait = true;
+                    this.wait((idle % Integer.MAX_VALUE));
+                }
+                Log.d("TIMOSENSOR", "WAKEUP");
+            } catch(InterruptedException e) {
+                e.printStackTrace();
+                // no problem, go on
+            }
             return false;
         }
 
@@ -63,36 +93,38 @@ public class DBObserver implements Runnable
 
     private List<String[]> query(String deviceID, int type)
     {
-        List<String[]> entries = new ArrayList<>();
-
         String table = SQLTableMapper.getName(type);
         if(table == null || SQLDBController.getInstance() == null || !SensorService.getInstance().hasWakelock()) {
-            return entries;
+            return new ArrayList<>();
         }
 
-        List<String[]> tmp = SQLDBController.getInstance().query("SELECT * FROM " + SQLTableName.PREFIX + deviceID + table + " LIMIT " + Settings.WEARTRANSFERSIZE, null, true);
-        entries.addAll(tmp);
-
-        return entries;
+        return SQLDBController.getInstance().query("SELECT * FROM " + SQLTableName.PREFIX + deviceID + table + " LIMIT " + (Settings.WEARTRANSFERSIZE + 1), null, true);
     }
 
 
-    private void send(String deviceID, int type, List<String[]> entries)
+    private boolean send(String deviceID, int type, List<String[]> entries, boolean last)
     {
+        Log.d("TIMOSENSOR", "" + last);
+
+        if(!last) {
+            entries.remove(entries.size() - 1);
+        }
         byte[] bytes = Utils.objectToCompressedByteArray(entries);
-        BroadcastService.getInstance().sendMessage("/sensor/blob/" + deviceID + "/" + type, bytes);
+        BroadcastService.getInstance().sendMessage("/sensor/blob/" + deviceID + "/" + type + "/" + last, bytes);
 
         int code = Arrays.hashCode(bytes);
         Log.d("DBObseverTIMO", "Send ID: " + code);
         int attempts = 0;
-        while(!(this.confirmed.contains(code)) && attempts < Settings.WEARTRANSFERTIMEOUT) {
-            Utils.sleep(100);
-            attempts++;
+        while(!(this.confirmed.contains(code)) && attempts <= Settings.WEARTRANSFERTIMEOUT) {
+            Utils.sleep(1000);
+            attempts += 1000;
 
             if(!this.isRunning) {
-                return;
+                break;
             }
         }
+
+        return this.confirmed.contains(code);
     }
 
 
@@ -104,32 +136,48 @@ public class DBObserver implements Runnable
                 continue;
             }
 
-            MainActivity main = (MainActivity) ActivityController.getInstance().get("MainActivity");
+            final MainActivity main = (MainActivity) ActivityController.getInstance().get("MainActivity");
             if(main == null) {
                 continue;
             }
 
-            SensorManager sm = (SensorManager) main.getSystemService(Activity.SENSOR_SERVICE);
-            List<Sensor> allSensors = sm.getSensorList(Sensor.TYPE_ALL);
             String deviceID = DeviceID.get(main);
+            Set<Integer> implementedSensors = SensorService.getInstance().getSCM().getImplementedSensors();
 
-            for(Sensor sensor : allSensors) {
-                int type = sensor.getType();
+            for(int type : implementedSensors) {
                 List<String[]> entries;
+                boolean success = true;
                 do {
                     entries = query(deviceID, type);
 
-                    if(entries.size() > 1) {
-                        send(deviceID, type, query(deviceID, type));
+                    if(type == 1 || type == 4) {
+                        Log.d("TIMOSENSOR", "DB SCAN " + type + " " + entries.size());
+                    }
 
-                        String table = SQLTableName.PREFIX + deviceID + SQLTableMapper.getName(type);
-                        SQLDBController.getInstance().delete(table, "id in (SELECT id FROM " + table + " LIMIT " + Settings.WEARTRANSFERSIZE + ")", null);
+                    if(entries.size() > 1) {
+                        Log.d("TIMOSENSOR", "SEND DATA " + type + " " + entries.size());
+                        success = send(deviceID, type, entries, (entries.size() != (Settings.WEARTRANSFERSIZE + 2)));
+
+                        if(success) {   // TODO RESEND MAY RESULT IN DUPLICATE DATA!!!
+                            String table = SQLTableName.PREFIX + deviceID + SQLTableMapper.getName(type);
+                            SQLDBController.getInstance().delete(table, "id in (SELECT id FROM " + table + " LIMIT " + Settings.WEARTRANSFERSIZE + ")", null);
+                        } else {
+                            main.runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    Toast.makeText(main.getBaseContext(), R.string.sending_error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
 
                     if(!this.isRunning) {
                         return;
                     }
-                } while(entries.size() >= Settings.WEARTRANSFERSIZE);
+                    Log.d("TIMOSENSOR", "JAAAAAAA");
+                } while(entries.size() >= Settings.WEARTRANSFERSIZE || !success);
             }
 
             this.lastTransfer = System.currentTimeMillis();

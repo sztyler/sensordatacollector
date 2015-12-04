@@ -2,7 +2,6 @@ package de.unima.ar.collector.ui;
 
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
