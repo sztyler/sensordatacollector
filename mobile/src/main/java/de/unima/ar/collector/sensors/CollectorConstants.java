@@ -7,5 +7,5 @@ import de.unima.ar.collector.util.SensorDataUtil;
  */
 public class CollectorConstants
 {
-    public static final int[] activatedCustomCollectors = new int[]{ SensorDataUtil.getSensorTypeInt("TYPE_MICROPHONE"), SensorDataUtil.getSensorTypeInt("TYPE_GPS") };
+    public static final int[] activatedCustomCollectors = new int[]{ SensorDataUtil.getSensorTypeInt("TYPE_MICROPHONE"), SensorDataUtil.getSensorTypeInt("TYPE_GPS"), SensorDataUtil.getSensorTypeInt("TYPE_VIDEO") };
 }

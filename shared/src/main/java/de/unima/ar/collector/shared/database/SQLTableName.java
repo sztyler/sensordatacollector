@@ -37,4 +37,6 @@ public class SQLTableName
     public static final String ROTATION      = "SensorRotationVectorData";
     public static final String STEP          = "SensorStepDetectorData";
     public static final String STEPCOUNTER   = "SensorStepCounterData";
+    public static final String VIDEO         = "SensorVideoData";
+
 }

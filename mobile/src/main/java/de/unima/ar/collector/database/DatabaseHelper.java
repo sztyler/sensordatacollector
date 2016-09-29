@@ -31,6 +31,7 @@ import de.unima.ar.collector.sensors.RelativeHumiditySensorCollector;
 import de.unima.ar.collector.sensors.RotationVectorSensorCollector;
 import de.unima.ar.collector.sensors.StepCounterSensorCollector;
 import de.unima.ar.collector.sensors.StepDetectorSensorCollector;
+import de.unima.ar.collector.sensors.VideoCollector;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.util.UIUtils;
 
@@ -135,6 +136,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
         RotationVectorSensorCollector.createDBStorage(deviceID);
         StepDetectorSensorCollector.createDBStorage(deviceID);
         StepCounterSensorCollector.createDBStorage(deviceID);
+        VideoCollector.createDBStorage(deviceID);
     }
 
 

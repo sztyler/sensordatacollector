@@ -23,6 +23,8 @@ public class CustomCollectorFactory
                 return new MicrophoneCollector();
             case "TYPE_GPS":
                 return new GPSCollector(context);
+            case "TYPE_VIDEO":
+                return new VideoCollector();
         }
 
         return null;

@@ -249,6 +249,8 @@ public class SensorDataUtil
                 return "TYPE_MICROPHONE";
             case -3:
                 return "TYPE_GPS";
+            case -4:
+                return "TYPE_VIDEO";
             default:
                 return "TYPE_" + type;
         }
@@ -305,6 +307,8 @@ public class SensorDataUtil
                 return -2;
             case "TYPE_GPS":
                 return -3;
+            case "TYPE_VIDEO":
+                return -4;
             default:
                 return -1;
         }
