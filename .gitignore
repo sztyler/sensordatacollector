@@ -32,3 +32,13 @@ local.properties
 *~
 *.swp
 build/
+gradle.properties
+gradle/
+gradlew
+gradlew.bat
+
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
