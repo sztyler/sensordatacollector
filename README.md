@@ -10,6 +10,12 @@ This is an Android application that allows to record all common build-in sensors
 # Features
 <p align="center"><img src="http://wifo5-14.informatik.uni-mannheim.de/sensor/res/framework.png" alt="application"></p>
 The App allows to record, label, and visualize all common sensors. This includes: accelerometer, gyroscope, temperature, GPS, magnetic field, microphone (sound-level), orientation, pressure, proximity, humidity, and video.
+<ul>
+  <li>recording of all build-in sensors (simultaneously)</li>
+  <li>labeling recorded data (activity, location, posture)</li>
+  <li>visualize recorded data as well as supports live plotting</li>
+  <li>supports smart-watches (Android Wear) (sensor recording, additional interface)</li>
+</ul> 
 
 # Requirements
 <ul>
