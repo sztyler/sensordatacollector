@@ -49,21 +49,12 @@ import com.androidplot.xy.XYSeriesFormatter;
 import com.androidplot.xy.XYStepMode;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -87,11 +78,13 @@ import de.unima.ar.collector.sensors.SensorCollectorManager;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
+import de.unima.ar.collector.shared.util.Utils;
 import de.unima.ar.collector.ui.ActivityListRowAdapter;
 import de.unima.ar.collector.ui.ActivityOnItemClickListener;
 import de.unima.ar.collector.ui.AnalyzeRowAdapter;
 import de.unima.ar.collector.ui.CorrectionHistoryAdapter;
 import de.unima.ar.collector.ui.DataPlotZoomListener;
+import de.unima.ar.collector.ui.DrawPointsMap;
 import de.unima.ar.collector.ui.OverviewRowAdapter;
 import de.unima.ar.collector.ui.SensorenRowAdapter;
 import de.unima.ar.collector.ui.SeparatedListAdapter;
@@ -122,9 +115,7 @@ public class MainActivity extends AppCompatActivity
 
     private final static ArrayList<ScreenInfo> lastScreens = new ArrayList<>();
 
-    private View              GPSView;
-    private ArrayList<Marker> positionMarkers;
-    private Polyline          polyline;
+    private View GPSView;
 
     private SensorSelfTest lastSensorSelfTest = null;
 
@@ -331,7 +322,6 @@ public class MainActivity extends AppCompatActivity
         final Map<String, PlotConfiguration> showConfigs = new HashMap<>();
         StringBuilder query = new StringBuilder();
         for(PlotConfiguration configuration : configurations) {
-            // TODO My result in a crash after a update if a new table is
             query.append("SELECT * FROM (SELECT '").append(configuration.sensorName).append("' AS Name, '").append(configuration.deviceID).append("' AS Device, id AS Count FROM ").append(SQLTableName.PREFIX).append(configuration.deviceID).append(configuration.tableName).append(" ORDER BY id DESC LIMIT 1) UNION ");
             showConfigs.put(configuration.sensorName + configuration.deviceID, configuration);
         }
@@ -418,49 +408,11 @@ public class MainActivity extends AppCompatActivity
             GPSView = this.getLayoutInflater().inflate(R.layout.googlemaplayout, null);
         }
 
-        if(polyline != null) {
-            polyline.remove();
-
-            polyline = null;
-        }
-
-        if(positionMarkers != null) {
-            for(int i = 0; i < positionMarkers.size(); i++) {
-                positionMarkers.get(i).remove();
-            }
-
-            positionMarkers = null;
-        }
-
         setContentView(GPSView);
 
+        DrawPointsMap dpm = new DrawPointsMap(this, start, end);
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
-        GoogleMap map = mapFragment.getMap();
-
-        positionMarkers = new ArrayList<>();
-
-        PolylineOptions polyOptions = new PolylineOptions();
-
-        List<String[]> result = SQLDBController.getInstance().query("SELECT attr_time, attr_lat, attr_lng FROM " + SQLTableName.PREFIX + DeviceID.get(MainActivity.this) + SQLTableName.GPS + " WHERE attr_time > ? AND attr_time < ?", new String[]{ String.valueOf(start), String.valueOf(end) }, false);
-
-        LatLng pos = null;
-
-        for(String[] row : result) {
-            pos = new LatLng(Float.valueOf(row[1]), Float.valueOf(row[2]));
-            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
-            polyOptions.add(pos);
-
-            positionMarkers.add(map.addMarker(new MarkerOptions().title(sdf.format(new Date(Long.valueOf(row[0])))).position(pos)));
-        }
-
-        if(pos == null) {
-            return;
-        }
-
-        polyline = map.addPolyline(polyOptions);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+        mapFragment.getMapAsync(dpm);
     }
 
 
@@ -894,20 +846,6 @@ public class MainActivity extends AppCompatActivity
             GPSView = this.getLayoutInflater().inflate(R.layout.googlemaplayout, null);
         }
 
-        if(polyline != null) {
-            polyline.remove();
-
-            polyline = null;
-        }
-
-        if(positionMarkers != null) {
-            for(int i = 0; i < positionMarkers.size(); i++) {
-                positionMarkers.get(i).remove();
-            }
-
-            positionMarkers = null;
-        }
-
         setContentView(GPSView);
 
         final SupportMapFragment map = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -916,7 +854,7 @@ public class MainActivity extends AppCompatActivity
 
         for(CustomCollector cc : ccs) {
             if(SensorDataUtil.getSensorType(cc.getType()).equals("TYPE_GPS")) {
-                ((GPSCollector) cc).setMap(map.getMap());
+                map.getMapAsync((GPSCollector) cc);
                 break;
             }
         }
@@ -948,7 +886,7 @@ public class MainActivity extends AppCompatActivity
             for(String device : devices) {
                 if(enabledSensor > 0) {
                     SensorCollector sc = SensorDataCollectorService.getInstance().getSCM().getSensorCollectors().get(enabledSensor);
-                    if(sc.isRegistered && sc.getPlotter(device) != null) {
+                    if(sc.isRegistered) {
                         activeSensors.add(new Triple<>(StringUtils.formatSensorName(name), getString(R.string.analyze_analyzelive_collecting), device));
                     }
                 } else {
@@ -1031,10 +969,12 @@ public class MainActivity extends AppCompatActivity
             addScreen(Screens.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
             plotter.startPlotting(sensorLevelsPlot, sensorHistoryPlot);
 
-            if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
+            if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED && (de.unima.ar.collector.shared.Settings.WEARTRANSFERDIRECT || DeviceID.get(this).equals(deviceID))) {
                 plotter.setPlotting(true);
-            } else {
+            } else if(!de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
                 Toast.makeText(this, R.string.analyze_analyzelive_disabled, Toast.LENGTH_SHORT).show();
+            } else if(!de.unima.ar.collector.shared.Settings.WEARTRANSFERDIRECT) {
+                Toast.makeText(this, R.string.analyze_analyzelive_wearcache, Toast.LENGTH_SHORT).show();
             }
         } else {
             Collection<CustomCollector> sensors = SensorDataCollectorService.getInstance().getSCM().getCustomCollectors().values();
@@ -1052,10 +992,12 @@ public class MainActivity extends AppCompatActivity
                     addScreen(Screens.ANALYZE_LIVE, new Object[]{ deviceID, sensorId, plotter });
                     plotter.startPlotting(sensorLevelsPlot, sensorHistoryPlot);
 
-                    if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
+                    if(de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED && (de.unima.ar.collector.shared.Settings.WEARTRANSFERDIRECT || DeviceID.get(this).equals(deviceID))) {
                         plotter.setPlotting(true);
-                    } else {
+                    } else if(!de.unima.ar.collector.shared.Settings.LIVE_PLOTTER_ENABLED) {
                         Toast.makeText(this, R.string.analyze_analyzelive_disabled, Toast.LENGTH_SHORT).show();
+                    } else if(!de.unima.ar.collector.shared.Settings.WEARTRANSFERDIRECT) {
+                        Toast.makeText(this, R.string.analyze_analyzelive_wearcache, Toast.LENGTH_SHORT).show();
                     }
                     break;
                 } else if(cc.isRegistered() && cc.getType() == sensorId) {
@@ -1220,7 +1162,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 } else {
                     String sensorName = txt2.getText().toString();
-                    int sensorID = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
+                    final int sensorID = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
                     SensorCollector sc = service.getSCM().getSensorCollectors().get(sensorID);
                     // Fall 1: Sensor läuft bereits dann removen wir ihn
                     if(chBx.isChecked()) {
@@ -1230,7 +1172,16 @@ public class MainActivity extends AppCompatActivity
                             BroadcastService.getInstance().sendMessage("/sensor/unregister", String.valueOf(sensorID));
                             DBUtils.updateSensorStatus(sensorID, (1000 * 1000) / sc.getSensorRate(), 0); // microseconds -> hertz
                             chBx.setChecked(false);
-                            SensorDataUtil.flushSensorDataCache(sensorID, DeviceID.get(MainActivity.this));
+
+                            new Thread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    Utils.makeToast2(MainActivity.this, R.string.sensor_cache_to_database, Toast.LENGTH_LONG);
+                                    SensorDataUtil.flushSensorDataCache(sensorID, null);
+                                }
+                            }).start();
                         }
                     } else {
                         if(!service.getSCM().enableCollectors(sensorID)) {

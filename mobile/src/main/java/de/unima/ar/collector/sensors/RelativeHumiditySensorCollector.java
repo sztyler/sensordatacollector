@@ -64,6 +64,10 @@ public class RelativeHumiditySensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            RelativeHumiditySensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

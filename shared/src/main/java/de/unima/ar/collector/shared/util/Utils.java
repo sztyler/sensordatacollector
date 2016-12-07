@@ -1,6 +1,9 @@
 package de.unima.ar.collector.shared.util;
 
 import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
@@ -47,6 +50,20 @@ public class Utils
             public void run()
             {
                 Toast.makeText(activity, message, duration).show();
+            }
+        });
+    }
+
+
+    public static void makeToast2(final Context context, final int message, final int duration)
+    {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                Toast.makeText(context, message, duration).show();
             }
         });
     }

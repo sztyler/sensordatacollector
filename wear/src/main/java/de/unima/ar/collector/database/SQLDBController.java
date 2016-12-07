@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
@@ -12,7 +13,6 @@ import java.util.List;
 
 import de.unima.ar.collector.sensors.SensorService;
 import de.unima.ar.collector.shared.Settings;
-import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
 
 
@@ -56,11 +56,15 @@ public class SQLDBController
         List<String[]> result;
 
         synchronized(databaseLock) {
-            SQLiteDatabase database = databaseHelper.getReadableDatabase();
-            Cursor c = database.rawQuery(sql, selectionArgs);
+            try {
+                SQLiteDatabase database = databaseHelper.getReadableDatabase();
+                Cursor c = database.rawQuery(sql, selectionArgs);
 
-            result = convertCursorToList(c, header);
-            //            database.close();
+                result = convertCursorToList(c, header);
+                //            database.close();
+            } catch(SQLiteException e) {
+                result = new ArrayList<>(); // table does not exist or invalid query -so the result is empty
+            }
         }
 
         return result;
@@ -98,7 +102,7 @@ public class SQLDBController
 
     public long bulkInsert(String table, List<String[]> values)
     {
-        Log.d("TIMOSENSOR", "BULK INSERT "+values.size());
+        Log.d("TIMOSENSOR", "BULK INSERT " + values.size());
 
         long result = -1;
 

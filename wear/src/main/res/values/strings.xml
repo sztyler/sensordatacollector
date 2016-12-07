@@ -22,6 +22,7 @@
 
     <string name="broadcast_outofrange">Warning! Smartphone out of Range!</string>
     <string name="sending_error">Warning! Data could not be transferred. Try again&#8230;</string>
+    <string name="sending_force">Stopping Sensors! Force data transfer to handheld.</string>
 
     <string name="database_delete">Database deleted!</string>
 

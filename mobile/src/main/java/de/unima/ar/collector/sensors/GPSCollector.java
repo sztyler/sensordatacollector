@@ -9,15 +9,17 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -43,7 +45,7 @@ import de.unima.ar.collector.util.PlotConfiguration;
 /**
  * @author Timo Sztyler, Fabian Kramm
  */
-public class GPSCollector extends CustomCollector implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
+public class GPSCollector extends CustomCollector implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback
 {
     private static final int      type       = -3;
     private static final String[] valueNames = new String[]{ "attr_lat", "attr_lng", "attr_time" };
@@ -82,7 +84,8 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
         }
 
         // check if google play services are installed
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this.context);
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int status = googleAPI.isGooglePlayServicesAvailable(this.context);
         if(status == ConnectionResult.SUCCESS) {
             this.mGoogleApiClient = new GoogleApiClient.Builder(this.context).addConnectionCallbacks(this).addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
         }
@@ -111,7 +114,12 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
 
                 Location location = null;
                 if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-                    location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    if(!(Build.VERSION.SDK_INT >= 23 &&
+                            !(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED))) {
+
+                        location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                    }
                 }
 
                 if(location == null || (lastKnownLocation != null && location.getTime() <= lastKnownLocation.getTime())) {
@@ -178,9 +186,7 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
             mGoogleApiClient.disconnect();
         }
 
-        if(Build.VERSION.SDK_INT >= 23 &&
-                !(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+        if(Build.VERSION.SDK_INT >= 23 && !(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             for(LocationListener ll : this.locationListeners) {
                 this.locationManager.removeUpdates(ll);
             }
@@ -291,17 +297,13 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
     }
 
 
-    public void setMap(GoogleMap map)
-    {
-        this.map = map;
-
-        refreshMap();
-    }
-
-
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            GPSCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 
@@ -370,8 +372,17 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult)
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
         searchLocationWithoutGoogleService();
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap)
+    {
+        this.map = googleMap;
+
+        refreshMap();
     }
 }

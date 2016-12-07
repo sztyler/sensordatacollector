@@ -40,7 +40,7 @@ public class SettingActivity extends PreferenceActivity implements SharedPrefere
         // init toolbar
         Toolbar mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.pref_toolbar);
         mToolBar.setTitle(getTitle());
-        mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        //mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_material); TODO
         mToolBar.setNavigationOnClickListener(new View.OnClickListener()
         {
             @Override

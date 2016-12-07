@@ -67,6 +67,10 @@ public class RotationVectorSensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            RotationVectorSensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

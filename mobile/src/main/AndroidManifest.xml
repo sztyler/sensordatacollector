@@ -42,10 +42,6 @@
             android:name="de.unima.ar.collector.ui.SettingActivity"
             android:label="@string/prefTitle"
             android:screenOrientation="nosensor">
-            <intent-filer>
-                <action android:name=".Preferences"/>
-                <category android:name="android.intent.cetagory.PREFERENCE"/>
-            </intent-filer>
         </activity>
 
         <service
@@ -58,9 +54,11 @@
                 <action android:name="de.unima.ar.collector.service"/>
             </intent-filter>
         </service>
-        <service android:name=".api.ListenerService">
+        <service android:name=".api.ListenerService" android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER"/>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data android:scheme="wear" android:host="*" />
             </intent-filter>
         </service>
 

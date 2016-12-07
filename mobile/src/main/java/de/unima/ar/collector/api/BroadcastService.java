@@ -2,6 +2,7 @@ package de.unima.ar.collector.api;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -88,7 +89,7 @@ public class BroadcastService implements GoogleApiClient.ConnectionCallbacks, Go
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult)
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
         Log.d(LOG_TAG, "Failed!");
     }

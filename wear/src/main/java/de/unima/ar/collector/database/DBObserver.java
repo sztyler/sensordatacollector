@@ -1,5 +1,6 @@
 package de.unima.ar.collector.database;
 
+import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -49,11 +50,12 @@ public class DBObserver implements Runnable
     }
 
 
-    public void forceSending()
+    public void forceSending(Context context)
     {
         while(!this.wait && this.isRunning) {
             Log.d("TIMOSENSOR", "WAIT: " + this.wait + " -- " + this.isRunning);
-            Utils.sleep(1000);  // waits until the other running process is done
+            Utils.makeToast2(context, R.string.sending_force, Toast.LENGTH_SHORT);
+            Utils.sleep(2500);  // waits until the other running process is done
         }
 
         this.lastTransfer = 0;
@@ -62,6 +64,8 @@ public class DBObserver implements Runnable
             this.wait = false;
             this.notify();
         }
+
+        Log.d("TIMOSENSOR", "DB NOTIFIED!");
     }
 
 
@@ -94,7 +98,8 @@ public class DBObserver implements Runnable
     private List<String[]> query(String deviceID, int type)
     {
         String table = SQLTableMapper.getName(type);
-        if(table == null || SQLDBController.getInstance() == null || !SensorService.getInstance().hasWakelock()) {
+        //        if(table == null || SQLDBController.getInstance() == null || !SensorService.getInstance().hasWakelock()) { TODO
+        if(table == null || SQLDBController.getInstance() == null) {
             return new ArrayList<>();
         }
 
@@ -112,6 +117,12 @@ public class DBObserver implements Runnable
         byte[] bytes = Utils.objectToCompressedByteArray(entries);
         BroadcastService.getInstance().sendMessage("/sensor/blob/" + deviceID + "/" + type + "/" + last, bytes);
 
+        if(Settings.DATABASE_DIRECT_INSERT && !Settings.WEARTRANSFERDIRECT) {
+            Settings.WEARTRANSFERTIMEOUT = 35000;
+        } else {
+            Settings.WEARTRANSFERTIMEOUT = 5000;
+        }
+
         int code = Arrays.hashCode(bytes);
         Log.d("DBObseverTIMO", "Send ID: " + code);
         int attempts = 0;
@@ -123,6 +134,8 @@ public class DBObserver implements Runnable
                 break;
             }
         }
+
+        Log.d("DBObseverTIMO", String.valueOf(this.confirmed.contains(code)) + " -- " + this.confirmed.size());
 
         return this.confirmed.contains(code);
     }
@@ -176,11 +189,12 @@ public class DBObserver implements Runnable
                     if(!this.isRunning) {
                         return;
                     }
-                    Log.d("TIMOSENSOR", "JAAAAAAA");
                 } while(entries.size() >= Settings.WEARTRANSFERSIZE || !success);
             }
 
             this.lastTransfer = System.currentTimeMillis();
         }
+
+        this.isRunning = true; // reset, since DBO is static
     }
 }

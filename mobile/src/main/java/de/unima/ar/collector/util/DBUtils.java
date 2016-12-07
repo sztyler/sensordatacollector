@@ -82,15 +82,19 @@ public class DBUtils
             return;
         }
 
-        List<String[]> values = cache.get(deviceID);
-        if(values.size() <= 1) {
-            return;
+        String[] deviceIDs = deviceID == null ? cache.keySet().toArray(new String[cache.keySet().size()]) : new String[]{ deviceID };
+
+        for(String entry : deviceIDs) {
+            List<String[]> values = cache.get(entry);
+            if(values.size() <= 1) {
+                return;
+            }
+
+            String tableName = SQLTableName.PREFIX + entry + sqlTableName;
+            SQLDBController.getInstance().bulkInsert(tableName, values);
+
+            cache.remove(entry);
         }
-
-        String tableName = SQLTableName.PREFIX + deviceID + sqlTableName;
-        SQLDBController.getInstance().bulkInsert(tableName, values);
-
-        cache.remove(deviceID);
     }
 
 

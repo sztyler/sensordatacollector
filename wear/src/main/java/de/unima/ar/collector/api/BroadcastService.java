@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -95,7 +96,6 @@ public class BroadcastService implements GoogleApiClient.ConnectionCallbacks, Go
     @Override
     public void onConnected(Bundle bundle)
     {
-
         Log.d(TAG, "Client connected!");
     }
 
@@ -108,7 +108,7 @@ public class BroadcastService implements GoogleApiClient.ConnectionCallbacks, Go
 
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult)
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
     {
         Log.d(TAG, "Client failed!");
     }

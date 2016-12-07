@@ -25,8 +25,8 @@
     <string name="main_overview_smartwatch">Devices</string>
     <string name="main_overview_smartwatch_description">Overview of all available devices</string>
     <string name="main_collectors">Collectors</string>
-    <string name="main_collectors_sensors">Turn collectors on/off</string>
-    <string name="main_collectors_activities">Select activities</string>
+    <string name="main_collectors_sensors">Sensor management</string>
+    <string name="main_collectors_activities">Labeling</string>
     <string name="main_collectors_correction">Correction/Note</string>
 
     <!-- Device Overview -->
@@ -59,6 +59,7 @@
     <string name="sensor_collector_generel_notify2">Sensor support not implemented!</string>
     <string name="sensor_collector_custom_notify">CustomCollector Error!</string>
     <string name="sensor_collector_reenable_notify">Recently used sensors reactivated!</string>
+    <string name="sensor_cache_to_database">Write data in database &#8230;</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Environment</string>
@@ -211,6 +212,7 @@
     <string name="analyze_analyzelive_collecting">Collecting</string>
     <string name="analyze_analyzelive_device">Device</string>
     <string name="analyze_analyzelive_disabled">Live Plotting is disabled!</string>
+    <string name="analyze_analyzelive_wearcache">No live data! \'Transfer immediately\' is disabled.</string>
     <string name="analyze_gps_notify">Google Play not supported!</string>
     <string name="analyze_analyzelive_loading1">Initialize Graph Model</string>
     <string name="analyze_analyzelive_loading2">Querying values &#8230;</string>
@@ -250,9 +252,9 @@
     <string name="option_export_failed">Export failed</string>
     <string name="option_about_title">About</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.17</string>
+    <string name="option_about_version_description">1.5.19</string>
     <string name="option_about_developer">Developer</string>
-    <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2016), Fabian Kramm (2014)</string>
+    <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>
     <string name="option_about_institution_description">University of Mannheim</string>
 

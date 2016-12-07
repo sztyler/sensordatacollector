@@ -65,6 +65,10 @@ public class StepCounterSensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            StepCounterSensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

@@ -67,6 +67,10 @@ public class OrientationSensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            OrientationSensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

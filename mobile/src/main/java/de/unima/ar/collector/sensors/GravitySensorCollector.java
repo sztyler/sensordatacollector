@@ -67,6 +67,10 @@ public class GravitySensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            GravitySensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -37,9 +39,9 @@ import de.unima.ar.collector.util.DBUtils;
 import de.unima.ar.collector.util.SensorDataUtil;
 import de.unima.ar.collector.util.StringUtils;
 
-public class Tasks
+class Tasks
 {
-    protected static void informThatWearableHasStarted(byte[] rawData, WearableListenerService wls)
+    static void informThatWearableHasStarted(byte[] rawData, WearableListenerService wls)
     {
         String data = StringUtils.convertByteArrayToString(rawData);
         if(data == null) {
@@ -58,14 +60,32 @@ public class Tasks
         ListenerService.addDevice(deviceID, deviceAddress);
 
         // send settings
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(wls);
-        BroadcastService.getInstance().sendMessage("/settings", "[WEARSENSOR, " + pref.getBoolean("watch_collect", true) + "]");
-        BroadcastService.getInstance().sendMessage("/settings", "[WEARTRANSFERDIRECT, " + pref.getBoolean("watch_direct", false) + "]");
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(wls);
+        Handler sendSettings = new Handler(Looper.getMainLooper());
+        sendSettings.post(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                boolean run = true;
+
+                do {
+                    if(BroadcastService.getInstance() != null) {
+                        BroadcastService.getInstance().sendMessage("/settings", "[WEARSENSOR, " + pref.getBoolean("watch_collect", true) + "]");
+                        BroadcastService.getInstance().sendMessage("/settings", "[WEARTRANSFERDIRECT, " + pref.getBoolean("watch_direct", false) + "]");
+                        run = false;
+                    } else {
+                        Utils.sleep(100);
+                    }
+                } while(run);
+            }
+        });
 
         // main activity started?
         MainActivity activity = (MainActivity) ActivityController.getInstance().get("MainActivity");
         if(activity == null) {
             Intent intent = new Intent(wls, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             wls.startActivity(intent);
 
@@ -82,12 +102,11 @@ public class Tasks
         activity.refreshMainScreenOverview();
 
         // inform mobile device
-        Toast toast = Toast.makeText(activity, activity.getString(R.string.listener_app_connected), Toast.LENGTH_SHORT);
-        toast.show();
+        Utils.makeToast2(activity, R.string.listener_app_connected, Toast.LENGTH_SHORT);
     }
 
 
-    protected static void informThatWearableHasDestroyed(byte[] rawData)
+    static void informThatWearableHasDestroyed(byte[] rawData)
     {
         // unregister device
         String deviceID = StringUtils.convertByteArrayToString(rawData);
@@ -99,13 +118,12 @@ public class Tasks
             activity.refreshMainScreenOverview();
 
             // inform mobile device
-            Toast toast = Toast.makeText(activity, activity.getString(R.string.listener_app_disconnected), Toast.LENGTH_SHORT);
-            toast.show();
+            Utils.makeToast2(activity, R.string.listener_app_disconnected, Toast.LENGTH_SHORT);
         }
     }
 
 
-    protected static void updatePostureValue(byte[] rawData)
+    static void updatePostureValue(byte[] rawData)
     {
         // parse data
         String posture = StringUtils.convertByteArrayToString(rawData);
@@ -124,7 +142,7 @@ public class Tasks
     }
 
 
-    protected static void updatePositionValue(byte[] rawData)
+    static void updatePositionValue(byte[] rawData)
     {
         // parse data
         String position = StringUtils.convertByteArrayToString(rawData);
@@ -143,7 +161,7 @@ public class Tasks
     }
 
 
-    protected static void updateActivityValue(byte[] rawData)
+    static void updateActivityValue(byte[] rawData)
     {
         // parse data
         String data = StringUtils.convertByteArrayToString(rawData);
@@ -181,7 +199,7 @@ public class Tasks
     }
 
 
-    protected static void deleteActivityValue(byte[] rawData)
+    static void deleteActivityValue(byte[] rawData)
     {
         // parse data
         String data = StringUtils.convertByteArrayToString(rawData);
@@ -217,7 +235,7 @@ public class Tasks
     }
 
 
-    protected static void processDatabaseRequest(String key, byte[] rawData)
+    static void processDatabaseRequest(String key, byte[] rawData)
     {
         try {
             StringBuilder sb = new StringBuilder();
@@ -248,22 +266,22 @@ public class Tasks
             // Check if UI is available
             Context context = ActivityController.getInstance().get("MainActivity");
             if(context != null) {
-                Toast.makeText(context, context.getString(R.string.listener_database_failed), Toast.LENGTH_LONG).show();
+                Utils.makeToast2(context, R.string.listener_database_failed, Toast.LENGTH_LONG);
             }
         }
     }
 
 
-    protected static void processIncomingSensorData(String path, byte[] rawData)
+    static void processIncomingSensorData(String path, byte[] rawData)
     {
         if(SQLDBController.getInstance() == null) {
             return;
         }
-
         path = path.substring("/sensor/data/".length());
 
         String deviceID = path.substring(0, path.indexOf("/"));
-        int type = Integer.valueOf(path.substring(path.indexOf("/") + 1, path.lastIndexOf("/")));
+        //int type = Integer.valueOf(path.substring(path.indexOf("/") + 1, path.lastIndexOf("/")));
+        int type = Integer.valueOf(path.substring(path.indexOf("/") + 1));
 
         String data = StringUtils.convertByteArrayToString(rawData);
         String[] entries = StringUtils.split(data);
@@ -274,50 +292,70 @@ public class Tasks
 
         switch(type) {
             case 1:
-                //                AccelerometerSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    AccelerometerSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 AccelerometerSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 2:
-                //                MagneticFieldSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    MagneticFieldSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 MagneticFieldSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 3:
-                //                OrientationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    OrientationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 OrientationSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 4:
-                //                GyroscopeSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    GyroscopeSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 GyroscopeSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 6:
-                //                PressureSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    PressureSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                }
                 PressureSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 9:
-                //                GravitySensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    GravitySensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 GravitySensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 10:
-                //                LinearAccelerationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    LinearAccelerationSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 LinearAccelerationSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 11:
-                //                RotationVectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    RotationVectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]), Float.valueOf(entries[3]), Float.valueOf(entries[5]) });
+                }
                 RotationVectorSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 18:
-                //                StepDetectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    StepDetectorSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                }
                 StepDetectorSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
             case 19:
-                //                StepCounterSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                if(Settings.WEARTRANSFERDIRECT && Settings.LIVE_PLOTTER_ENABLED) {
+                    StepCounterSensorCollector.updateLivePlotter(deviceID, new float[]{ Float.valueOf(entries[1]) });
+                }
                 StepCounterSensorCollector.writeDBStorage(deviceID, newValues);
                 break;
         }
     }
 
 
-    protected static void processIncomingSensorBlob(String path, byte[] rawData)
+    static void processIncomingSensorBlob(String path, byte[] rawData)
     {
         BroadcastService.getInstance().sendMessage("/sensor/blob/confirm/" + Arrays.hashCode(rawData), "");
 
@@ -338,7 +376,7 @@ public class Tasks
             }
             record = record.substring(0, record.length() - 1);
 
-            Tasks.processIncomingSensorData(path.replace("blob", "data"), record.getBytes());
+            Tasks.processIncomingSensorData(path.replace("blob", "data").substring(0, path.lastIndexOf("/")), record.getBytes());
         }
 
         String head = path.substring(0, path.lastIndexOf("/"));
@@ -346,7 +384,7 @@ public class Tasks
         String deviceID = path.substring("/sensor/blob/".length(), path.indexOf("/", "/sensor/blob/".length()));
         boolean last = Boolean.valueOf(path.substring(path.lastIndexOf("/") + 1));
         Set<Integer> enabledSensors = SensorDataCollectorService.getInstance().getSCM().getEnabledCollectors();
-        if(!enabledSensors.contains(type) && last) {
+        if(!enabledSensors.contains(type) && last && !Settings.DATABASE_DIRECT_INSERT) {
             SensorDataUtil.flushSensorDataCache(type, deviceID);
         }
     }

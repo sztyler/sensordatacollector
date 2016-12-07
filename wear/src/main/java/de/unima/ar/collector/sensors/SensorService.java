@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 
 import de.unima.ar.collector.database.DBObserver;
 import de.unima.ar.collector.database.DatabaseHelper;
@@ -18,10 +19,11 @@ public class SensorService extends Service
 {
     private static SensorService INSTANCE = null;
     private static boolean       created  = false;
+    private static DBObserver    dbo      = null;
 
     private SensorManager         scm;
     private PowerManager.WakeLock wakeLock;
-    private DBObserver            dbo;
+    private Thread                dbThread;
 
 
     public SensorService() // has to be public because it is a service
@@ -101,17 +103,29 @@ public class SensorService extends Service
 
     public void informDBObserver(int hashCode)
     {
-        if(this.dbo == null) {
+        Log.d("DBObseverTIMO", String.valueOf(dbo == null));
+        if(dbo == null) {
             return;
         }
 
-        this.dbo.addConfirmedTransaction(hashCode);
+        dbo.addConfirmedTransaction(hashCode);
     }
 
 
     public void forceDBObserver()
     {
-        this.dbo.forceSending();
+        Log.d("TIMOSENSOR", "DB THREAD1: " + (this.dbThread == null ? "null" : String.valueOf(this.dbThread.isAlive())));
+        if(!this.dbThread.isAlive()) {
+            if(dbo == null) {
+                dbo = new DBObserver();
+            }
+
+            this.dbThread = new Thread(dbo);
+            this.dbThread.start();
+        }
+        Log.d("TIMOSENSOR", "DB THREAD2: " + (this.dbThread == null ? "null" : String.valueOf(this.dbThread.isAlive())));
+
+        dbo.forceSending(this.getBaseContext());
     }
 
 
@@ -124,9 +138,13 @@ public class SensorService extends Service
 
         SQLDBController.initInstance(this);
         scm = new SensorManager(this);
-        dbo = new DBObserver();
 
-        new Thread(dbo).start();
+        if(dbo == null) {
+            dbo = new DBObserver();
+            this.dbThread = new Thread(dbo);
+            this.dbThread.start();
+        }
+
         registerReceiver(mReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
         String deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -163,16 +181,12 @@ public class SensorService extends Service
         created = false;
         wakeLock.release();
         unregisterReceiver(mReceiver);
-        this.dbo.shutdown();
+        dbo.shutdown();
     }
 
 
     public boolean hasWakelock()
     {
-        if(this.wakeLock == null) {
-            return false;
-        }
-
-        return this.wakeLock.isHeld();
+        return this.wakeLock != null && this.wakeLock.isHeld();
     }
 }

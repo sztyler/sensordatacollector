@@ -25,8 +25,8 @@
     <string name="main_overview_smartwatch">Geräte</string>
     <string name="main_overview_smartwatch_description">Übersicht aller verfügbaren Geräte</string>
     <string name="main_collectors">Verwaltung</string>
-    <string name="main_collectors_sensors">Kollektoren verwalten</string>
-    <string name="main_collectors_activities">Aktivität festlegen</string>
+    <string name="main_collectors_sensors">Sensorverwaltung</string>
+    <string name="main_collectors_activities">Labels festlegen</string>
     <string name="main_collectors_correction">Korrektur/Notiz</string>
 
     <!-- Device Overview -->
@@ -59,6 +59,7 @@
     <string name="sensor_collector_generel_notify2">Dieser Sensor wird nicht unterstützt!</string>
     <string name="sensor_collector_custom_notify">Fehler beim aktivieren des Sensors!</string>
     <string name="sensor_collector_reenable_notify">Zuletzt verwendete Sensoren wieder aktiviert!</string>
+    <string name="sensor_cache_to_database">Schreibe Daten in die Datenbank &#8230;</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Umgebung</string>
@@ -212,6 +213,7 @@
     <string name="analyze_analyzelive_collecting">Sammeln</string>
     <string name="analyze_analyzelive_device">Gerät</string>
     <string name="analyze_analyzelive_disabled">Die Echtzeitdarstellung ist derzeit deaktiviert!</string>
+    <string name="analyze_analyzelive_wearcache">Keine Echtzeitinformationen verfügbar! \'Sofortige Übertragung\' ist deaktiviert.</string>
     <string name="analyze_gps_notify">Google Play wird nicht unterstützt!</string>
     <string name="analyze_analyzelive_loading1">Initialisierung des Graphen</string>
     <string name="analyze_analyzelive_loading2">Daten werden abgefragt &#8230;</string>
@@ -251,9 +253,9 @@
     <string name="option_export_failed">Export fehlgeschlagen</string>
     <string name="option_about_title">Über</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.17</string>
+    <string name="option_about_version_description">1.5.19</string>
     <string name="option_about_developer">Entwickler</string>
-    <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2016), Fabian Kramm (2014)</string>
+    <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>
     <string name="option_about_institution_description">Universität Mannheim</string>
 

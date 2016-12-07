@@ -67,9 +67,12 @@ public class LinearAccelerationSensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            LinearAccelerationSensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
-
 
     @Override
     public int getType()

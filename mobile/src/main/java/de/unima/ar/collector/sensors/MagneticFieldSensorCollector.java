@@ -2,6 +2,7 @@ package de.unima.ar.collector.sensors;
 
 import android.content.ContentValues;
 import android.hardware.Sensor;
+import android.hardware.SensorManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,6 +68,10 @@ public class MagneticFieldSensorCollector extends SensorCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            MagneticFieldSensorCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 

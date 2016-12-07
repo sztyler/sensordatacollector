@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
@@ -59,11 +60,15 @@ public class SQLDBController
         List<String[]> result;
 
         synchronized(databaseLock) {
-            SQLiteDatabase database = databaseHelper.getWritableDatabase();
-            Cursor c = database.rawQuery(sql, selectionArgs);
+            try {
+                SQLiteDatabase database = databaseHelper.getReadableDatabase();
+                Cursor c = database.rawQuery(sql, selectionArgs);
 
-            result = convertCursorToList(c, header);
-            //            database.close();
+                result = convertCursorToList(c, header);
+                //            database.close();
+            } catch(SQLiteException e) {
+                result = new ArrayList<>(); // table does not exist or invalid query -so the result is empty
+            }
         }
 
         return result;
@@ -167,7 +172,7 @@ public class SQLDBController
     public void execSQL(String sql)
     {
         synchronized(databaseLock) {
-            SQLiteDatabase database = databaseHelper.getWritableDatabase();
+            SQLiteDatabase database = databaseHelper.getWritableDatabase(); // TODO onActivityCreated
             database.execSQL(sql);
             //            database.close();
         }

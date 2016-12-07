@@ -161,6 +161,10 @@ public class MicrophoneCollector extends CustomCollector
     @Override
     public Plotter getPlotter(String deviceID)
     {
+        if(!plotters.containsKey(deviceID)) {
+            MicrophoneCollector.createNewPlotter(deviceID);
+        }
+
         return plotters.get(deviceID);
     }
 
