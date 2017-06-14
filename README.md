@@ -3,7 +3,7 @@ This is an Android application that allows to record all common build-in sensors
 
 # Releases
 <ul>
-  <li>GitHub: <a href="https://github.com/sztyler/sensordatacollector/releases/tag/1.5.19">v1.5.19</a></li>
+  <li>GitHub: <a href="https://github.com/sztyler/sensordatacollector/releases/tag/1.5.20">v1.5.20</a></li>
   <li>PlayStore: <a href="https://play.google.com/store/apps/details?id=de.unima.ar.collector">v1.5.17</a></li>
 </ul> 
 
