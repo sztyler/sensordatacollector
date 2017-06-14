@@ -11,7 +11,10 @@ import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.api.BroadcastService;
@@ -32,6 +35,9 @@ public class SQLDBController
     private final Object         databaseLock;
 
     private static final String SERVICENAME = "de.unima.ar.sqlDBCon";
+
+    private static Map<String, List<String[]>> cacheToDB = new HashMap<>();
+    ;
 
 
     private SQLDBController()
@@ -115,16 +121,23 @@ public class SQLDBController
         sql = sql.substring(0, sql.length() - 1);
         sql += ") values (" + qMarks.substring(0, qMarks.length() - 1) + ");";
 
+        String uuid = UUID.randomUUID().toString();
+        cacheToDB.put(uuid, values);
+
         Context context = SensorDataCollectorService.getInstance().getApplicationContext();
         Intent insert = new Intent(context, BulkInsertService.class);
         insert.putExtra("sqlQuery", sql);
-        insert.putExtra("values", new ArrayList<>(values));
+        insert.putExtra("uuid", uuid);
         context.startService(insert);
     }
 
 
-    public void bulkInsertFromIntent(String sql, List<String[]> values)
+    public void bulkInsertFromIntent(String uuid, String sql)
     {
+        List<String[]> values = cacheToDB.get(uuid);
+        if(values == null) {
+            return;
+        }
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         database.beginTransaction();
         SQLiteStatement insert = database.compileStatement(sql);
@@ -139,6 +152,7 @@ public class SQLDBController
         }
         database.setTransactionSuccessful();
         database.endTransaction();
+        cacheToDB.remove(uuid);
     }
 
 

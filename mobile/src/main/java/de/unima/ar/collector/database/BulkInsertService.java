@@ -6,9 +6,6 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-
 import de.unima.ar.collector.R;
 import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.controller.SQLDBController;
@@ -38,21 +35,14 @@ public class BulkInsertService extends IntentService
         }
 
         String sql = intent.getStringExtra("sqlQuery");
-        Serializable object = intent.getSerializableExtra("values");
+        String uuid = intent.getStringExtra("uuid");
 
 
-        if(sql == null || object == null || !(object instanceof ArrayList<?>)) {
+        if(sql == null || uuid == null) {
             return;
         }
 
-        ArrayList<String[]> values = new ArrayList<>();
-        for(Object o : (ArrayList<?>) object) {
-            if(o instanceof String[]) {
-                values.add((String[]) o);
-            }
-        }
-
-        instance.bulkInsertFromIntent(sql, values);
+        instance.bulkInsertFromIntent(uuid, sql);
 
         if(main != null) {
             Utils.makeToast2(main, R.string.sensor_cache_to_database_done, Toast.LENGTH_SHORT);

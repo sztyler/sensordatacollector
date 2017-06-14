@@ -61,6 +61,7 @@
     <string name="sensor_collector_reenable_notify">Recently used sensors reactivated!</string>
     <string name="sensor_cache_to_database">Write data in database &#8230;</string>
     <string name="sensor_cache_to_database_done">Done</string>
+    <string name="sensor_microphone_error">Error! The microphone could be initialized!</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Environment</string>

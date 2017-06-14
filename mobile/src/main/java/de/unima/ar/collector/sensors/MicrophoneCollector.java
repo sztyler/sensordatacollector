@@ -1,10 +1,12 @@
 package de.unima.ar.collector.sensors;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,13 +15,16 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import de.unima.ar.collector.R;
 import de.unima.ar.collector.SensorDataCollectorService;
+import de.unima.ar.collector.controller.ActivityController;
 import de.unima.ar.collector.controller.SQLDBController;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.extended.Plotter;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
+import de.unima.ar.collector.shared.util.Utils;
 import de.unima.ar.collector.util.PlotConfiguration;
 
 
@@ -34,7 +39,8 @@ public class MicrophoneCollector extends CustomCollector
     private Timer timer;
     //    private MediaRecorder mRecorder = null;
 
-    private static Map<String, Plotter> plotters  = new HashMap<>();
+    private static Map<String, Plotter> plotters     = new HashMap<>();
+    private static int[]                mSampleRates = new int[]{ 8000, 11025, 22050, 44100 };
 
 
     MicrophoneCollector()
@@ -100,7 +106,16 @@ public class MicrophoneCollector extends CustomCollector
         int bufferSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
         // making the buffer bigger....
         bufferSize = bufferSize * 4;
-        AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+        // AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+        AudioRecord recorder = findAudioRecord();
+        if(recorder == null) {
+            Activity main = ActivityController.getInstance().get("MainActivity");
+            if(main != null) {
+                Utils.makeToast2(main, R.string.sensor_microphone_error, Toast.LENGTH_SHORT);
+            }
+
+            return;
+        }
 
         short data[] = new short[bufferSize];
         double average = 0.0;
@@ -227,5 +242,31 @@ public class MicrophoneCollector extends CustomCollector
     public static void writeDBStorage(String deviceID, ContentValues newValues)
     {
         SQLDBController.getInstance().insert(SQLTableName.PREFIX + deviceID + SQLTableName.MICROPHONE, null, newValues);
+    }
+
+
+    private AudioRecord findAudioRecord()
+    {
+        for(int rate : mSampleRates) {
+            for(short audioFormat : new short[]{ AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_PCM_8BIT }) {
+                for(short channelConfig : new short[]{ AudioFormat.CHANNEL_IN_STEREO, AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.CHANNEL_IN_MONO }) {
+                    try {
+                        Log.d("MicrophoneCollector", "Attempting rate " + rate + "Hz, bits: " + audioFormat + ", channel: " + channelConfig);
+                        int bufferSize = AudioRecord.getMinBufferSize(rate, channelConfig, audioFormat);
+
+                        if(bufferSize != AudioRecord.ERROR_BAD_VALUE) {
+                            // check if we can instantiate and have a success
+                            AudioRecord recorder = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, rate, channelConfig, audioFormat, bufferSize);
+
+                            if(recorder.getState() == AudioRecord.STATE_INITIALIZED)
+                                return recorder;
+                        }
+                    } catch(Exception e) {
+                        Log.e("MicrophoneCollector", rate + " Exception, keep trying.", e);
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

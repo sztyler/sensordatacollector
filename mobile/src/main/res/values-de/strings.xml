@@ -61,6 +61,8 @@
     <string name="sensor_collector_reenable_notify">Zuletzt verwendete Sensoren wieder aktiviert!</string>
     <string name="sensor_cache_to_database">Schreibe Daten in die Datenbank &#8230;</string>
     <string name="sensor_cache_to_database_done">Fertig</string>
+    <string name="sensor_microphone_error">Fehler! Das Mikrofon konnte nicht initialisiert werden.</string>
+
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Umgebung</string>
