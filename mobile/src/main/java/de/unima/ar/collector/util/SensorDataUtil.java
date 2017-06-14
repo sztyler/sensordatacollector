@@ -317,55 +317,48 @@ public class SensorDataUtil
 
     public static void flushSensorDataCache(final int type, final String deviceID)
     {
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                if(type == 1 || type == 0) {
-                    AccelerometerSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 2 || type == 0) {
-                    MagneticFieldSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 3 || type == 0) {
-                    OrientationSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 4 || type == 0) {
-                    GyroscopeSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 5 || type == 0) {
-                    LightSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 6 || type == 0) {
-                    PressureSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 8 || type == 0) {
-                    ProximitySensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 9 || type == 0) {
-                    GravitySensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 10 || type == 0) {
-                    LinearAccelerationSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 11 || type == 0) {
-                    RotationVectorSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 12 || type == 0) {
-                    RelativeHumiditySensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 13 || type == 0) {
-                    AmbientTemperatureSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 18 || type == 0) {
-                    StepDetectorSensorCollector.flushDBCache(deviceID);
-                }
-                if(type == 19 || type == 0) {
-                    StepCounterSensorCollector.flushDBCache(deviceID);
-                }
-            }
-        }).start();
+        if(type == 1 || type == 0) {
+            AccelerometerSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 2 || type == 0) {
+            MagneticFieldSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 3 || type == 0) {
+            OrientationSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 4 || type == 0) {
+            GyroscopeSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 5 || type == 0) {
+            LightSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 6 || type == 0) {
+            PressureSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 8 || type == 0) {
+            ProximitySensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 9 || type == 0) {
+            GravitySensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 10 || type == 0) {
+            LinearAccelerationSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 11 || type == 0) {
+            RotationVectorSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 12 || type == 0) {
+            RelativeHumiditySensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 13 || type == 0) {
+            AmbientTemperatureSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 18 || type == 0) {
+            StepDetectorSensorCollector.flushDBCache(deviceID);
+        }
+        if(type == 19 || type == 0) {
+            StepCounterSensorCollector.flushDBCache(deviceID);
+        }
     }
 
 

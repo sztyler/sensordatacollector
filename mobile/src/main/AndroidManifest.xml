@@ -61,7 +61,10 @@
                 <data android:scheme="wear" android:host="*" />
             </intent-filter>
         </service>
-
+        <service
+            android:name="de.unima.ar.collector.database.BulkInsertService"
+            android:exported="false"
+            android:label="BulkInsertService"/>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAO_KaVFCCLMwaJOY9taL8Q0ozbMNQ_xMY"/>

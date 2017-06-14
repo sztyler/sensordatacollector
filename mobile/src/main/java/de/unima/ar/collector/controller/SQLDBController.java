@@ -2,6 +2,7 @@ package de.unima.ar.collector.controller;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -15,6 +16,7 @@ import java.util.List;
 import de.unima.ar.collector.SensorDataCollectorService;
 import de.unima.ar.collector.api.BroadcastService;
 import de.unima.ar.collector.api.ListenerService;
+import de.unima.ar.collector.database.BulkInsertService;
 import de.unima.ar.collector.database.DatabaseHelper;
 import de.unima.ar.collector.sensors.CustomCollector;
 import de.unima.ar.collector.sensors.SensorCollector;
@@ -25,17 +27,17 @@ import de.unima.ar.collector.shared.util.DeviceID;
 public class SQLDBController
 {
     private static SQLDBController INSTANCE = null;
-    private static Context         context  = null;
 
-    private DatabaseHelper databaseHelper;
+    private       DatabaseHelper databaseHelper;
+    private final Object         databaseLock;
 
     private static final String SERVICENAME = "de.unima.ar.sqlDBCon";
-
-    private final Object databaseLock;
 
 
     private SQLDBController()
     {
+        Context context = SensorDataCollectorService.getInstance().getApplicationContext();
+
         this.databaseLock = new Object();
         this.databaseHelper = new DatabaseHelper(context);
     }
@@ -44,7 +46,6 @@ public class SQLDBController
     public static SQLDBController getInstance()
     {
         if(INSTANCE == null) {
-            context = SensorDataCollectorService.getInstance();
             INSTANCE = new SQLDBController();
 
             // create tables
@@ -65,7 +66,6 @@ public class SQLDBController
                 Cursor c = database.rawQuery(sql, selectionArgs);
 
                 result = convertCursorToList(c, header);
-                //            database.close();
             } catch(SQLiteException e) {
                 result = new ArrayList<>(); // table does not exist or invalid query -so the result is empty
             }
@@ -82,7 +82,6 @@ public class SQLDBController
         synchronized(databaseLock) {
             SQLiteDatabase database = databaseHelper.getWritableDatabase();
             result = database.delete(table, whereClause, whereArgs);
-            //            database.close();
         }
 
         return result;
@@ -97,7 +96,6 @@ public class SQLDBController
         //        synchronized(databaseLock) {
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         result = database.insert(table, nullColumnHack, values);
-        //            database.close();
         //        }
 
 
@@ -105,14 +103,8 @@ public class SQLDBController
     }
 
 
-    public long bulkInsert(String table, List<String[]> values)
+    public void bulkInsert(String table, List<String[]> values)
     {
-        long result = -1;
-
-        if(values.size() == 0) {
-            return result;
-        }
-
         String sql = "INSERT OR IGNORE INTO " + table + " (";
         String qMarks = "";
         for(String name : values.get(0)) {
@@ -123,6 +115,16 @@ public class SQLDBController
         sql = sql.substring(0, sql.length() - 1);
         sql += ") values (" + qMarks.substring(0, qMarks.length() - 1) + ");";
 
+        Context context = SensorDataCollectorService.getInstance().getApplicationContext();
+        Intent insert = new Intent(context, BulkInsertService.class);
+        insert.putExtra("sqlQuery", sql);
+        insert.putExtra("values", new ArrayList<>(values));
+        context.startService(insert);
+    }
+
+
+    public void bulkInsertFromIntent(String sql, List<String[]> values)
+    {
         SQLiteDatabase database = databaseHelper.getWritableDatabase();
         database.beginTransaction();
         SQLiteStatement insert = database.compileStatement(sql);
@@ -132,12 +134,11 @@ public class SQLDBController
             for(int j = 1; j <= value.length; j++) {
                 insert.bindString(j, value[j - 1]);
             }
-            result = insert.executeInsert();
+
+            insert.executeInsert();
         }
         database.setTransactionSuccessful();
         database.endTransaction();
-
-        return result;
     }
 
 
@@ -148,25 +149,10 @@ public class SQLDBController
         synchronized(databaseLock) {
             SQLiteDatabase database = databaseHelper.getWritableDatabase();
             result = database.update(table, values, whereClause, whereArgs);
-            //            database.close();
         }
 
         return result;
     }
-
-
-    //    public long replace(String table, String nullColumnHack, ContentValues initValues)
-    //    {
-    //        long result;
-    //
-    //        synchronized(databaseLock) {
-    //            SQLiteDatabase database = databaseHelper.getWritableDatabase();
-    //            result = database.replace(table, nullColumnHack, initValues);
-    //            //            database.close();
-    //        }
-    //
-    //        return result;
-    //    }
 
 
     public void execSQL(String sql)
@@ -174,7 +160,6 @@ public class SQLDBController
         synchronized(databaseLock) {
             SQLiteDatabase database = databaseHelper.getWritableDatabase(); // TODO onActivityCreated
             database.execSQL(sql);
-            //            database.close();
         }
     }
 
@@ -186,7 +171,6 @@ public class SQLDBController
         synchronized(databaseLock) {
             SQLiteDatabase database = databaseHelper.getWritableDatabase();
             path = database.getPath();
-            //            database.close();
         }
 
         return path;
@@ -206,8 +190,6 @@ public class SQLDBController
             } else {
                 Log.w(SERVICENAME, "DB not null, File does not exist!");
             }
-
-            //            database.close();
         }
 
         return size;
@@ -235,6 +217,7 @@ public class SQLDBController
             this.databaseHelper.deleteDatabase();
 
             // recreate tables
+            Context context = SensorDataCollectorService.getInstance().getApplicationContext();
             String deviceID = DeviceID.get(context);
             DatabaseHelper.createTables();
 

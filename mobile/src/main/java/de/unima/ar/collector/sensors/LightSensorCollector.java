@@ -31,7 +31,7 @@ public class LightSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public LightSensorCollector(Sensor sensor)
+    LightSensorCollector(Sensor sensor)
     {
         super(sensor);
 

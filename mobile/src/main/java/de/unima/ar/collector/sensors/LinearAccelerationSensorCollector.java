@@ -31,7 +31,7 @@ public class LinearAccelerationSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public LinearAccelerationSensorCollector(Sensor sensor)
+    LinearAccelerationSensorCollector(Sensor sensor)
     {
         super(sensor);
 

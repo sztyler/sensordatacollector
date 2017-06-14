@@ -181,7 +181,7 @@ public class ActivitySelector extends Activity
                         break;
                     }
                 }
-                int pos = Utils.getPosition(lastSelectedSubActivity, new ArrayList<String>(subActivities));
+                int pos = Utils.getPosition(lastSelectedSubActivity, new ArrayList<>(subActivities));
                 ActivitySelector.this.mainView.scrollToPosition(pos);
 
                 return;

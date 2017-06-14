@@ -66,7 +66,7 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
     private static Map<String, Plotter> plotters = new HashMap<>();
 
 
-    public GPSCollector(Context context)
+    GPSCollector(Context context)
     {
         super();
 
@@ -197,7 +197,7 @@ public class GPSCollector extends CustomCollector implements GoogleApiClient.Con
     }
 
 
-    public void doLocationUpdate(final Location location)
+    private void doLocationUpdate(final Location location)
     {
         Log.d("GPSCollector", "DATA: " + location.getLatitude() + " - " + location.getLongitude() + " - " + location.getTime() + " - " + location.getProvider() + " - " + System.currentTimeMillis());
         ContentValues newValues = new ContentValues();

@@ -63,7 +63,7 @@ public class OnCustomTouchListener extends GestureDetector.SimpleOnGestureListen
     }
 
 
-    public void onSwipeRight()
+    private void onSwipeRight()
     {
         MainActivity main = (MainActivity) ActivityController.getInstance().get("MainActivity");
         ActivityController.getInstance().setState(main, ActivityController.State.onPause_MANUAL);
@@ -75,7 +75,7 @@ public class OnCustomTouchListener extends GestureDetector.SimpleOnGestureListen
     }
 
 
-    public void onSwipeLeft()
+    private void onSwipeLeft()
     {
         // nothing
     }

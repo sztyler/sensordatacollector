@@ -31,7 +31,7 @@ public class GravitySensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public GravitySensorCollector(Sensor sensor)
+    GravitySensorCollector(Sensor sensor)
     {
         super(sensor);
 

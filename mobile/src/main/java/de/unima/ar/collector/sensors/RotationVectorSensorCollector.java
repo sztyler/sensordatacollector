@@ -31,7 +31,7 @@ public class RotationVectorSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public RotationVectorSensorCollector(Sensor sensor)
+    RotationVectorSensorCollector(Sensor sensor)
     {
         super(sensor);
 

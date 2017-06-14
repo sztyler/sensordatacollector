@@ -60,6 +60,7 @@
     <string name="sensor_collector_custom_notify">Fehler beim aktivieren des Sensors!</string>
     <string name="sensor_collector_reenable_notify">Zuletzt verwendete Sensoren wieder aktiviert!</string>
     <string name="sensor_cache_to_database">Schreibe Daten in die Datenbank &#8230;</string>
+    <string name="sensor_cache_to_database_done">Fertig</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Umgebung</string>
@@ -251,9 +252,10 @@
     <string name="option_export_fileexists">Fehler! Die Zieldatei existiert bereits!</string>
     <string name="option_export_success">Export erfolgreich abgeschlossen!</string>
     <string name="option_export_failed">Export fehlgeschlagen</string>
+    <string name="option_export_nowritablemedia">Export fehlgeschlagen! Es wurde kein beschreibbarer Speicher gefunden.</string>
     <string name="option_about_title">Über</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.19</string>
+    <string name="option_about_version_description">1.5.20</string>
     <string name="option_about_developer">Entwickler</string>
     <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>

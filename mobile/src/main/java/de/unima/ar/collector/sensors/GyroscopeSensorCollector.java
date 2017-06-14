@@ -31,7 +31,7 @@ public class GyroscopeSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public GyroscopeSensorCollector(Sensor sensor)
+    GyroscopeSensorCollector(Sensor sensor)
     {
         super(sensor);
 

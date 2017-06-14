@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
         <header android:fragment="de.unima.ar.collector.ui.SettingActivity$Prefs1Fragment"
-                android:icon="@drawable/ic_setting_dark"
+                android:icon="@drawable/ic_action_settings"
                 android:title="Prefs 1"
                 android:summary="An example of some preferences." />
 

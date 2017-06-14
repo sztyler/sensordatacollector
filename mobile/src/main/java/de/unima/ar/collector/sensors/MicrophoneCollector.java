@@ -34,11 +34,10 @@ public class MicrophoneCollector extends CustomCollector
     private Timer timer;
     //    private MediaRecorder mRecorder = null;
 
-    public static  double               REFERENCE = 0.00002;
     private static Map<String, Plotter> plotters  = new HashMap<>();
 
 
-    public MicrophoneCollector()
+    MicrophoneCollector()
     {
         super();
 
@@ -94,7 +93,7 @@ public class MicrophoneCollector extends CustomCollector
     }
 
 
-    public void doTask()
+    private void doTask()
     {
         // http://stackoverflow.com/questions/10655703/what-does-androids-getmaxamplitude-function-for-the-mediarecorder-actually-gi
 
@@ -132,7 +131,7 @@ public class MicrophoneCollector extends CustomCollector
         // from asuming that x=32767=0.6325
         // Pa and x=1 = 0.00002 Pa (the
         // reference value)
-        db = (20 * Math.log10(pressure / REFERENCE));
+        db = (20 * Math.log10(pressure / 0.00002));
         if(db < 0) {
             return;
         }

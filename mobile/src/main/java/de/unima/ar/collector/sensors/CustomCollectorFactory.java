@@ -8,13 +8,13 @@ import de.unima.ar.collector.util.SensorDataUtil;
 /**
  * @author Fabian Kramm
  */
-public class CustomCollectorFactory
+class CustomCollectorFactory
 {
     /**
      * @param type Typ des collectors
      * @return Collector Klasse die sich um das Sammeln der Daten kümmert
      */
-    public static CustomCollector getCollector(int type, Context context)
+    static CustomCollector getCollector(int type, Context context)
     {
         String sensorType = SensorDataUtil.getSensorType(type);
 

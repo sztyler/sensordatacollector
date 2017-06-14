@@ -21,7 +21,7 @@ public class SensorManager
     private android.hardware.SensorManager sensorManager;
 
 
-    public SensorManager(Context context)
+    SensorManager(Context context)
     {
         this.context = context;
 
@@ -30,30 +30,6 @@ public class SensorManager
         this.sensorManager = (android.hardware.SensorManager) this.context.getSystemService(Context.SENSOR_SERVICE);
 
         initSensors();
-    }
-
-
-    private void initSensors()
-    {
-        // Add all sensors
-        android.hardware.SensorManager mSensorManager = (android.hardware.SensorManager) this.context.getSystemService(Activity.SENSOR_SERVICE);
-        List<Sensor> allSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-
-        for(Sensor sensor : allSensors) {
-            this.addCollector(sensor.getType());
-        }
-    }
-
-
-    public boolean enableCollector(int type, int rate)
-    {
-        if(!this.collectors.containsKey(type)) {
-            return false;
-        }
-        this.enabledCollectors.add(type);
-        this.collectors.get(type).setSensorRate(rate);
-
-        return true;
     }
 
 
@@ -66,25 +42,6 @@ public class SensorManager
     public Set<Integer> getEnabledCollectors()
     {
         return this.enabledCollectors;
-    }
-
-
-    public void registerCollectors()
-    {
-        for(Collector col : this.collectors.values()) {
-            if(col.isRegistered() || !enabledCollectors.contains(col.getType())) {
-                continue;
-            }
-
-            Sensor sensor = this.sensorManager.getDefaultSensor(col.getType());
-
-            if(sensor == null) {
-                continue;
-            }
-
-            this.sensorManager.registerListener(col, sensor, col.getSensorRate());
-            col.setRegisteredState(true);
-        }
     }
 
 
@@ -118,6 +75,49 @@ public class SensorManager
     public Set<Integer> getImplementedSensors()
     {
         return this.collectors.keySet();
+    }
+
+
+    boolean enableCollector(int type, int rate)
+    {
+        if(!this.collectors.containsKey(type)) {
+            return false;
+        }
+        this.enabledCollectors.add(type);
+        this.collectors.get(type).setSensorRate(rate);
+
+        return true;
+    }
+
+
+    void registerCollectors()
+    {
+        for(Collector col : this.collectors.values()) {
+            if(col.isRegistered() || !enabledCollectors.contains(col.getType())) {
+                continue;
+            }
+
+            Sensor sensor = this.sensorManager.getDefaultSensor(col.getType());
+
+            if(sensor == null) {
+                continue;
+            }
+
+            this.sensorManager.registerListener(col, sensor, col.getSensorRate());
+            col.setRegisteredState(true);
+        }
+    }
+
+
+    private void initSensors()
+    {
+        // Add all sensors
+        android.hardware.SensorManager mSensorManager = (android.hardware.SensorManager) this.context.getSystemService(Activity.SENSOR_SERVICE);
+        List<Sensor> allSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+
+        for(Sensor sensor : allSensors) {
+            this.addCollector(sensor.getType());
+        }
     }
 
 

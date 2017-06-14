@@ -52,22 +52,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
     }
 
 
-    public void deleteDatabase()
-    {
-        this.context.deleteDatabase(DATABASE_NAME);
-    }
-
-
-    public static void createTables()
-    {
-        SQLDBController.getInstance().execSQL(sqlTableActivityData);
-        SQLDBController.getInstance().execSQL(sqlTablePostureData);
-        SQLDBController.getInstance().execSQL(sqlTablePositionData);
-        SQLDBController.getInstance().execSQL(sqlTableDevicePositionData);
-        SQLDBController.getInstance().execSQL(sqlTableTansferLog);
-    }
-
-
     public static void createDeviceDependentTables(String deviceID)
     {
         AccelerometerCollector.createDBStorage(deviceID);
@@ -80,5 +64,21 @@ public class DatabaseHelper extends SQLiteOpenHelper
         RotationVectorCollector.createDBStorage(deviceID);
         StepDetectorCollector.createDBStorage(deviceID);
         StepCounterCollector.createDBStorage(deviceID);
+    }
+
+
+    void deleteDatabase()
+    {
+        this.context.deleteDatabase(DATABASE_NAME);
+    }
+
+
+    static void createTables()
+    {
+        SQLDBController.getInstance().execSQL(sqlTableActivityData);
+        SQLDBController.getInstance().execSQL(sqlTablePostureData);
+        SQLDBController.getInstance().execSQL(sqlTablePositionData);
+        SQLDBController.getInstance().execSQL(sqlTableDevicePositionData);
+        SQLDBController.getInstance().execSQL(sqlTableTansferLog);
     }
 }

@@ -24,21 +24,10 @@ import de.unima.ar.collector.shared.database.SQLTableName;
  */
 abstract public class SensorCollector implements SensorEventListener
 {
-    //
-    public boolean writeOnSensorChanged = false;
-    // Sagt ob Collector im SensorManager registriert werden soll
-    public boolean registerCollector    = true;
-    // Wurde Collector registriert?
-    public boolean isRegistered         = false;
-
-    // Referenz zum eigentlichen Sensor, wenn null dann wird default Sensor für diesen Type genommen
+    public boolean isRegistered = false;
+    boolean registerCollector = true;
     protected Sensor sensor;
     private   double sensorRate;
-
-    // Rate mit der der Sensor aktualisiert werden soll
-    // private int sensorRate = SensorManager.SENSOR_DELAY_NORMAL;
-    // private int sensorRateFastest = SensorManager.SENSOR_DELAY_FASTEST;
-    private long LastUpdate = 0;
 
 
     public SensorCollector(Sensor sensor)

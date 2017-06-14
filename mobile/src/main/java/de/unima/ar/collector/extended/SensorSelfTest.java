@@ -1,11 +1,5 @@
 package de.unima.ar.collector.extended;
 
-/**
- * University Mannheim
- * Last Modified : 13.10.2014
- * Author : Samoht, Timo Sztyler
- */
-
 import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,6 +17,9 @@ public class SensorSelfTest implements SensorEventListener
     private SensorManager sensorManager;
     private Sensor        sensor;
     private Activity      context;
+
+    private long now  = 0;
+    private int  temp = 0;
 
 
     public SensorSelfTest(Activity context, Sensor sensor)
@@ -55,16 +52,12 @@ public class SensorSelfTest implements SensorEventListener
     }
 
 
-    long now  = 0;
-    long time = 0;
-    int  temp = 0;
-
-
     @Override
     public void onSensorChanged(SensorEvent event)
     {
         try {
             long tS;
+            long time;
             // only if the event is from the accelerometer
             if(event.sensor.getType() == sensor.getType()) {
                 float x, y, z;

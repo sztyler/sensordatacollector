@@ -67,6 +67,17 @@ public class DatabaseExportCSV extends AsyncTask<String, Void, Boolean> implemen
             return false;
         }
 
+        // check if storage is available and writable
+        String storageState = Environment.getExternalStorageState();
+        if(!Environment.MEDIA_MOUNTED.equals(storageState)) {
+            extStore = Environment.getDataDirectory();
+
+            if(extStore == null || !extStore.canRead() || !extStore.canWrite()) {
+                UIUtils.makeToast((Activity) context, R.string.option_export_nowritablemedia, Toast.LENGTH_LONG);
+                return false;
+            }
+        }
+
         // check if a table was selected where the sensor is still running
         SensorCollectorManager scm = SensorDataCollectorService.getInstance().getSCM();
         if(scm != null) {

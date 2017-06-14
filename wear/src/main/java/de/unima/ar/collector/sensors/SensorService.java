@@ -185,8 +185,8 @@ public class SensorService extends Service
     }
 
 
-    public boolean hasWakelock()
-    {
-        return this.wakeLock != null && this.wakeLock.isHeld();
-    }
+    //    public boolean hasWakelock()
+    //    {
+    //        return this.wakeLock != null && this.wakeLock.isHeld();
+    //    }
 }

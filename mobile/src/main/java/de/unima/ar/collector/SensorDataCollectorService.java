@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -97,8 +95,8 @@ public class SensorDataCollectorService extends Service
             return;
         }
 
-        SensorManager mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        //SensorManager mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         SQLDBController.getInstance();
         scm = new SensorCollectorManager(this);

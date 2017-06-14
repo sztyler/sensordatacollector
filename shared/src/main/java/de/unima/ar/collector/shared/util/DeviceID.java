@@ -3,7 +3,6 @@ package de.unima.ar.collector.shared.util;
 import android.content.Context;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 public class DeviceID
 {
@@ -33,7 +32,7 @@ public class DeviceID
 
         // Further information: http://stackoverflow.com/questions/16078269/android-unique-serial-number/16929647#16929647
 
-        return id;    // this should never happend
+        return null;    // this should never happend
     }
 
 

@@ -31,7 +31,7 @@ public class PressureSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public PressureSensorCollector(Sensor sensor)
+    PressureSensorCollector(Sensor sensor)
     {
         super(sensor);
 

@@ -31,7 +31,7 @@ public class AmbientTemperatureSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public AmbientTemperatureSensorCollector(Sensor sensor)
+    AmbientTemperatureSensorCollector(Sensor sensor)
     {
         super(sensor);
 

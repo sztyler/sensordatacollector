@@ -2,7 +2,6 @@ package de.unima.ar.collector.sensors;
 
 import android.content.ContentValues;
 import android.hardware.Sensor;
-import android.hardware.SensorManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class MagneticFieldSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public MagneticFieldSensorCollector(Sensor sensor)
+    MagneticFieldSensorCollector(Sensor sensor)
     {
         super(sensor);
 

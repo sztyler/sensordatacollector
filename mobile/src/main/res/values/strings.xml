@@ -60,6 +60,7 @@
     <string name="sensor_collector_custom_notify">CustomCollector Error!</string>
     <string name="sensor_collector_reenable_notify">Recently used sensors reactivated!</string>
     <string name="sensor_cache_to_database">Write data in database &#8230;</string>
+    <string name="sensor_cache_to_database_done">Done</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Environment</string>
@@ -250,9 +251,10 @@
     <string name="option_export_fileexists">Error! File already exists!</string>
     <string name="option_export_success">Export successful!</string>
     <string name="option_export_failed">Export failed</string>
+    <string name="option_export_nowritablemedia">Export failed! No writable media found.</string>
     <string name="option_about_title">About</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.19</string>
+    <string name="option_about_version_description">1.5.20</string>
     <string name="option_about_developer">Developer</string>
     <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>

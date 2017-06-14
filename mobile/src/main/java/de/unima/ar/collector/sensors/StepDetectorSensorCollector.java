@@ -31,7 +31,7 @@ public class StepDetectorSensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public StepDetectorSensorCollector(Sensor sensor)
+    StepDetectorSensorCollector(Sensor sensor)
     {
         super(sensor);
 

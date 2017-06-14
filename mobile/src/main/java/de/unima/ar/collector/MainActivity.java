@@ -1,11 +1,5 @@
 package de.unima.ar.collector;
 
-/**
- * University Mannheim
- * Last Modified : 19.02.2015
- * Author : Fabian Kramm, Timo Sztyler
- */
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -48,7 +42,7 @@ import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYSeriesFormatter;
 import com.androidplot.xy.XYStepMode;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.SupportMapFragment;
 
 import java.text.DecimalFormat;
@@ -102,7 +96,7 @@ import de.unima.ar.collector.util.Triple;
 
 public class MainActivity extends AppCompatActivity
 {
-    public enum Screens
+    private enum Screens
     {
         SENSOREN, ANALYZE, ANALYZE_LIVE, ANALYZE_DATABASE, OPTIONS, SENSOREN_DETAILS, ACTIVITIES, SENSOREN_SELFTEST, ADDITIONAL_DEVICES, ACTIVITY_CORRECTION
     }
@@ -398,7 +392,9 @@ public class MainActivity extends AppCompatActivity
     {
         addScreen(Screens.ANALYZE_DATABASE);
 
-        if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) != ConnectionResult.SUCCESS) {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if(result != ConnectionResult.SUCCESS) {
             Toast.makeText(getBaseContext(), getString(R.string.analyze_gps_notify), Toast.LENGTH_LONG).show();
             showAnalyze();
             return;
@@ -836,7 +832,9 @@ public class MainActivity extends AppCompatActivity
     {
         addScreen(Screens.ANALYZE);
 
-        if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) != ConnectionResult.SUCCESS) {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        if(result != ConnectionResult.SUCCESS) {
             Toast.makeText(getBaseContext(), getString(R.string.analyze_gps_notify), Toast.LENGTH_LONG).show();
             showAnalyze();
             return;
@@ -1120,7 +1118,6 @@ public class MainActivity extends AppCompatActivity
 
                 CheckBox chBx = ((CheckBox) view.findViewById(R.id.sensorcheckBox1));
                 TextView txt1 = ((TextView) view.findViewById(R.id.sensortextview1));
-                TextView txt2 = ((TextView) view.findViewById(R.id.sensortextview2));
 
                 int type = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
 
@@ -1132,9 +1129,7 @@ public class MainActivity extends AppCompatActivity
                         return;
                     }
 
-                    if(Build.VERSION.SDK_INT >= 23 &&
-                            ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                            ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(getBaseContext(), R.string.sensor_collector_gps_permission, Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -1161,27 +1156,18 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 } else {
-                    String sensorName = txt2.getText().toString();
                     final int sensorID = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
                     SensorCollector sc = service.getSCM().getSensorCollectors().get(sensorID);
                     // Fall 1: Sensor läuft bereits dann removen wir ihn
                     if(chBx.isChecked()) {
-                        if(!service.getSCM().removeSensor(sensorName, sensorID)) {
+                        if(!service.getSCM().removeSensor(sensorID)) {
                             Toast.makeText(getBaseContext(), getString(R.string.sensor_collector_generel_notify1), Toast.LENGTH_LONG).show();
                         } else {
                             BroadcastService.getInstance().sendMessage("/sensor/unregister", String.valueOf(sensorID));
                             DBUtils.updateSensorStatus(sensorID, (1000 * 1000) / sc.getSensorRate(), 0); // microseconds -> hertz
                             chBx.setChecked(false);
 
-                            new Thread(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    Utils.makeToast2(MainActivity.this, R.string.sensor_cache_to_database, Toast.LENGTH_LONG);
-                                    SensorDataUtil.flushSensorDataCache(sensorID, null);
-                                }
-                            }).start();
+                            SensorDataUtil.flushSensorDataCache(sensorID, null);
                         }
                     } else {
                         if(!service.getSCM().enableCollectors(sensorID)) {

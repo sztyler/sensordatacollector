@@ -31,7 +31,7 @@ public class RelativeHumiditySensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public RelativeHumiditySensorCollector(Sensor sensor)
+    RelativeHumiditySensorCollector(Sensor sensor)
     {
         super(sensor);
 

@@ -31,7 +31,7 @@ public class ProximitySensorCollector extends SensorCollector
     private static Map<String, List<String[]>> cache    = new HashMap<>();
 
 
-    public ProximitySensorCollector(Sensor sensor)
+    ProximitySensorCollector(Sensor sensor)
     {
         super(sensor);
 

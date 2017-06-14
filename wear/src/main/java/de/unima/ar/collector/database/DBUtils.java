@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 
 public class DBUtils
@@ -66,15 +65,15 @@ public class DBUtils
     }
 
 
-    public static void updateSensorStatus(int type, int frequency, int enabled)
-    {
-        ContentValues values = new ContentValues();
-        values.put("enabled", enabled);
-        values.put("freq", frequency);
-        int affectedRows = SQLDBController.getInstance().update(SQLTableName.SENSOROPTIONS, values, "sensor = ?", new String[]{ String.valueOf(type) });
-
-        if(affectedRows == 0 && enabled == 1) {
-            SQLDBController.getInstance().execSQL("INSERT OR IGNORE INTO " + SQLTableName.SENSOROPTIONS + " (sensor, freq, enabled) VALUES (" + type + "," + frequency + "," + enabled + ")");
-        }
-    }
+    //    public static void updateSensorStatus(int type, int frequency, int enabled)
+    //    {
+    //        ContentValues values = new ContentValues();
+    //        values.put("enabled", enabled);
+    //        values.put("freq", frequency);
+    //        int affectedRows = SQLDBController.getInstance().update(SQLTableName.SENSOROPTIONS, values, "sensor = ?", new String[]{ String.valueOf(type) });
+    //
+    //        if(affectedRows == 0 && enabled == 1) {
+    //            SQLDBController.getInstance().execSQL("INSERT OR IGNORE INTO " + SQLTableName.SENSOROPTIONS + " (sensor, freq, enabled) VALUES (" + type + "," + frequency + "," + enabled + ")");
+    //        }
+    //    }
 }

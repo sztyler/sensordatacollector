@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,7 @@ public class SensorCollectorManager
     private Set<Integer>                  enabledCollectors;
     private SensorManager                 sensorManager;
 
-    private final Object listenerLock;
+    private static final String LOG_TAG = "SensorCollectorManager";
 
 
     public SensorCollectorManager(Context context)
@@ -35,7 +36,6 @@ public class SensorCollectorManager
         this.customCollectors = new HashMap<>();
         this.enabledCollectors = new HashSet<>();
         this.sensorManager = (SensorManager) this.context.getSystemService(Context.SENSOR_SERVICE);
-        this.listenerLock = new Object();
 
         initSensors();
     }
@@ -71,7 +71,7 @@ public class SensorCollectorManager
             if(sensorCollectors.containsKey(type)) {
                 amount += sensorCollectors.get(type).getSensor().getPower();
             } else {
-                // TODO CustomSensors
+                Log.d(LOG_TAG, "getPowerUsed for custom collector is not implemented");
             }
         }
 
@@ -114,9 +114,9 @@ public class SensorCollectorManager
     }
 
 
-    public boolean removeSensor(String name, int type)
+    public boolean removeSensor(int type)
     {
-        boolean result = unregisterSensorCollector(name, type);
+        boolean result = unregisterSensorCollector(type);
 
         if(result) {
             disableCollectors(type);
@@ -186,7 +186,7 @@ public class SensorCollectorManager
                 this.sensorManager.registerListener(sel, this.sensorManager.getDefaultSensor(sel.getType()), sel.getSensorRate());
                 sel.isRegistered = true;
             } else { // Fall 3: Es existiert kein Default Sensor für den Sensortyp
-                // do nothing
+                Log.e(LOG_TAG, "Error! There is no default sensor.");
             }
         }
     }
@@ -202,7 +202,7 @@ public class SensorCollectorManager
     }
 
 
-    public boolean unregisterSensorCollector(String name, int type)
+    private boolean unregisterSensorCollector(int type)
     {
         for(SensorCollector sel : this.sensorCollectors.values()) {
             if(!(sel.isRegistered && sel.getType() == type && this.enabledCollectors.contains(sel.getType()))) {

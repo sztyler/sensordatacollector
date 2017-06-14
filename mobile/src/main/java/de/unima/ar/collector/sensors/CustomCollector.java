@@ -12,7 +12,7 @@ import de.unima.ar.collector.shared.database.SQLTableName;
  */
 abstract public class CustomCollector
 {
-    protected long sensorRate;  // milliseconds
+    long sensorRate;  // milliseconds
     private boolean isRegistered = false;
 
 
@@ -23,11 +23,11 @@ abstract public class CustomCollector
 
         List<String[]> result = SQLDBController.getInstance().query(queryString, queryArgs, false);
 
-        this.sensorRate = (result.size() != 0) ? Long.valueOf(result.get(0)[0]) : -1l; // milliseconds
+        this.sensorRate = (result.size() != 0) ? Long.valueOf(result.get(0)[0]) : -1L; // milliseconds
     }
 
 
-    public void register()
+    void register()
     {
         this.isRegistered = true;
         onRegistered();
@@ -52,7 +52,7 @@ abstract public class CustomCollector
     }
 
 
-    public void deregister()
+    void deregister()
     {
         this.isRegistered = false;
         onDeRegistered();

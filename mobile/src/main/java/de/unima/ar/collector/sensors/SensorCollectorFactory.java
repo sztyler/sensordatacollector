@@ -8,21 +8,14 @@ import de.unima.ar.collector.util.SensorDataUtil;
 /**
  * @author Fabian Kramm
  */
-public class SensorCollectorFactory
+class SensorCollectorFactory
 {
-
-    public static SensorCollector getCollector(int type)
-    {
-        return getCollector(type, null);
-    }
-
-
     /**
      * @param type   Typ des sensors
      * @param sensor Referenz zum Sensor, wenn null wird versucht default sensor zu nehmen
      * @return Collector Klasse die sich um das Sammeln der Daten kümmert
      */
-    public static SensorCollector getCollector(int type, Sensor sensor)
+    static SensorCollector getCollector(int type, Sensor sensor)
     {
         String sensorType = SensorDataUtil.getSensorType(type);
 

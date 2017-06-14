@@ -18,3 +18,4 @@
 
 -dontwarn javax.annotation.**
 -dontwarn sun.misc.Unsafe
+-dontwarn com.google.common.**

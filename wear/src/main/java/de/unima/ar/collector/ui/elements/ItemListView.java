@@ -2,6 +2,7 @@ package de.unima.ar.collector.ui.elements;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.view.CircledImageView;
 import android.support.wearable.view.WearableListView;
 import android.util.TypedValue;
@@ -45,8 +46,8 @@ public class ItemListView extends FrameLayout implements WearableListView.Item
         // elements and properties
         this.imgView = (CircledImageView) findViewById(R.id.image);
         this.txtView = (TextView) findViewById(R.id.text);
-        this.fadedCircleColor = getResources().getColor(android.R.color.darker_gray);
-        this.chosenCircleColor = getResources().getColor(android.R.color.holo_blue_dark);
+        this.fadedCircleColor = ContextCompat.getColor(context, android.R.color.darker_gray);
+        this.chosenCircleColor = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
         this.defaultCircleRadius = getResources().getDimension(R.dimen.default_settings_circle_radius);
         this.selectedCircleRadius = getResources().getDimension(R.dimen.selected_settings_circle_radius);
 

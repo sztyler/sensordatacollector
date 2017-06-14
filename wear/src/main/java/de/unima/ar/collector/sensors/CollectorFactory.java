@@ -12,9 +12,9 @@ import de.unima.ar.collector.sensors.collectors.RotationVectorCollector;
 import de.unima.ar.collector.sensors.collectors.StepCounterCollector;
 import de.unima.ar.collector.sensors.collectors.StepDetectorCollector;
 
-public class CollectorFactory
+class CollectorFactory
 {
-    public static Collector getCollector(int type)
+    static Collector getCollector(int type)
     {
         switch(type) {
             case 1:
