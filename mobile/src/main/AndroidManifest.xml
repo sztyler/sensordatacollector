@@ -67,7 +67,8 @@
             android:label="BulkInsertService"/>
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAO_KaVFCCLMwaJOY9taL8Q0ozbMNQ_xMY"/>
+            android:value=""/>
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version"/>

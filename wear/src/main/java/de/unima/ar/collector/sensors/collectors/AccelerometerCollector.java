@@ -29,12 +29,20 @@ public class AccelerometerCollector extends Collector
 
     private static Map<String, List<String[]>> cache = new HashMap<>();
 
+    private long startTimer = -1;
+    private long counter    = -1;
+
 
     @Override
     public void onSensorChanged(SensorEvent event)
     {
         float[] values = event.values.clone();
         long time = System.currentTimeMillis();
+
+        if(!(1 + (int) ((time - startTimer) / (this.sensorRate / 1000)) > counter)) {
+            return;
+        }
+        counter++;
 
         float x = values[0];
         float y = values[1];
@@ -100,6 +108,14 @@ public class AccelerometerCollector extends Collector
     public void setRegisteredState(boolean b)
     {
         this.isRegistered = b;
+
+        if(this.isRegistered) {
+            this.startTimer = System.currentTimeMillis();
+            this.counter = 0;
+        } else {
+            this.startTimer = -1;
+            this.counter = -1;
+        }
     }
 
 

@@ -1,5 +1,6 @@
 package de.unima.ar.collector;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -17,6 +18,8 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -72,7 +75,6 @@ import de.unima.ar.collector.sensors.SensorCollectorManager;
 import de.unima.ar.collector.shared.Settings;
 import de.unima.ar.collector.shared.database.SQLTableName;
 import de.unima.ar.collector.shared.util.DeviceID;
-import de.unima.ar.collector.shared.util.Utils;
 import de.unima.ar.collector.ui.ActivityListRowAdapter;
 import de.unima.ar.collector.ui.ActivityOnItemClickListener;
 import de.unima.ar.collector.ui.AnalyzeRowAdapter;
@@ -133,7 +135,7 @@ public class MainActivity extends AppCompatActivity
         // register
         String deviceID = DeviceID.get(this);
 
-        // bluetooth observation
+        // bluetooth observation - TODO crash without permission
         if(BluetoothAdapter.getDefaultAdapter() != null) {
             ListenerService.addDevice(deviceID, BluetoothAdapter.getDefaultAdapter().getAddress());
             BluetoothController.getInstance().register(this);
@@ -159,6 +161,13 @@ public class MainActivity extends AppCompatActivity
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.drawable.ic_launcher);
+        }
+
+        // request all permissions
+        if(Build.VERSION.SDK_INT >= 23) {
+            ActivityCompat.requestPermissions(this, new String[]{ Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.INTERNET, Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WAKE_LOCK, Manifest.permission.VIBRATE, Manifest.permission.BLUETOOTH_ADMIN, Manifest.permission.BLUETOOTH, Manifest.permission.READ_PHONE_STATE
+                    //Manifest.permission.SYSTEM_ALERT_WINDOW -not possible to acquire in >22
+            }, 0);
         }
     }
 
@@ -353,7 +362,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 RelativeLayout layout = (RelativeLayout) view;
-                TextView textView = (TextView) layout.findViewById(R.id.list_item_ueberblick_title);
+                TextView textView = layout.findViewById(R.id.list_item_ueberblick_title);
                 String sensorName = textView.getText().toString();
                 String deviceID = ((TextView) layout.findViewById(R.id.list_item_ueberblick_title_subtitle)).getText().toString();
                 deviceID = deviceID.substring(deviceID.indexOf(" ") + 1);
@@ -919,10 +928,10 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 RelativeLayout layout = (RelativeLayout) view;
-                TextView title = (TextView) layout.findViewById(R.id.list_item_ueberblick_title);
+                TextView title = layout.findViewById(R.id.list_item_ueberblick_title);
                 String sensorName = title.getText().toString();
 
-                TextView value = (TextView) layout.findViewById(R.id.list_item_ueberblick_title_subtitle);
+                TextView value = layout.findViewById(R.id.list_item_ueberblick_title_subtitle);
                 String deviceID = value.getText().toString().replace(getString(R.string.analyze_analyzelive_device) + ": ", "");
 
                 int sensorId = SensorDataUtil.getSensorTypeInt("TYPE_" + sensorName.toUpperCase(Locale.ENGLISH).replace(" ", "_"));
@@ -1116,8 +1125,8 @@ public class MainActivity extends AppCompatActivity
             {
                 SensorDataCollectorService service = SensorDataCollectorService.getInstance();
 
-                CheckBox chBx = ((CheckBox) view.findViewById(R.id.sensorcheckBox1));
-                TextView txt1 = ((TextView) view.findViewById(R.id.sensortextview1));
+                CheckBox chBx = view.findViewById(R.id.sensorcheckBox1);
+                TextView txt1 = view.findViewById(R.id.sensortextview1);
 
                 int type = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
 
@@ -1156,7 +1165,7 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 } else {
-                    final int sensorID = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
+                    int sensorID = SensorDataUtil.getSensorTypeInt("TYPE_" + txt1.getText().toString().toUpperCase(Locale.ENGLISH).replace(" ", "_"));
                     SensorCollector sc = service.getSCM().getSensorCollectors().get(sensorID);
                     // Fall 1: Sensor läuft bereits dann removen wir ihn
                     if(chBx.isChecked()) {
@@ -1518,5 +1527,17 @@ public class MainActivity extends AppCompatActivity
 
         // destroyed
         //        Toast.makeText(SensorDataCollectorService.getInstance(), getString(R.string.app_toast_destroy2), Toast.LENGTH_SHORT).show();
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        for(int value : grantResults) {
+            if(value != 0) {
+                Toast.makeText(this, R.string.service_permission_exit, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
     }
 }

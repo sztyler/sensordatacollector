@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- list_item.xml -->
 <TextView
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_title"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="15dip"
     android:paddingBottom="15dip"
-    android:paddingLeft="15dip"
     android:paddingEnd="0dip"
+    android:paddingLeft="15dip"
     android:paddingRight="0dip"
-    android:textSize="20sp"
-    android:textAppearance="?android:attr/textAppearanceLarge"  />
+    android:paddingStart="15dip"
+    android:paddingTop="15dip"
+    android:textColor="@color/white"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:textSize="20sp"/>

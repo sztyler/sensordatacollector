@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
 
     defaultConfig {
         applicationId "de.unima.ar.collector"
         minSdkVersion 20
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 20
-        versionName "1.5.20"
+        versionName "1.5.21"
     }
     buildTypes {
         release {
@@ -23,6 +23,6 @@ android {
 dependencies {
     compile 'com.google.android.support:wearable:1.0.0'
     provided 'com.google.android.wearable:wearable:1.0.0'
-    compile 'com.google.android.gms:play-services-wearable:11.0.0'
+    compile 'com.google.android.gms:play-services-wearable:11.0.1'
     compile project(':shared')
 }

@@ -12,6 +12,7 @@
     <string name="app_icon_statistics">Analyze</string>
     <string name="app_icon_services">Services</string>
     <string name="service_name">SensorDataCollectorService</string>
+    <string name="service_permission_exit">Sorry, the app is not runnable if not all permissions are granted. If you do not trust us, you can inspect the source code on Github and compile the app by yourself. Thank you.</string>
 
     <!-- Main Screen -->
     <string name="main_overview">Overview</string>
@@ -61,7 +62,9 @@
     <string name="sensor_collector_reenable_notify">Recently used sensors reactivated!</string>
     <string name="sensor_cache_to_database">Write data in database &#8230;</string>
     <string name="sensor_cache_to_database_done">Done</string>
-    <string name="sensor_microphone_error">Error! The microphone could be initialized!</string>
+    <string name="sensor_microphone_error">Error! The microphone could not be initialized!</string>
+    <string name="sensor_video_error">Error! The video camera could not be initialized!</string>
+    <string name="sensor_video_storage">All video data is directly written in your storage.</string>
 
     <!-- Activity Management -->
     <string name="activity_environment_title">Environment</string>
@@ -255,7 +258,7 @@
     <string name="option_export_nowritablemedia">Export failed! No writable media found.</string>
     <string name="option_about_title">About</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.20</string>
+    <string name="option_about_version_description">1.5.21</string>
     <string name="option_about_developer">Developer</string>
     <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>

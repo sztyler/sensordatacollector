@@ -87,7 +87,7 @@ public class DBUtils
         for(String entry : deviceIDs) {
             List<String[]> values = cache.get(entry);
             if(values.size() <= 1) {
-                return;
+                continue;
             }
 
             String tableName = SQLTableName.PREFIX + entry + sqlTableName;

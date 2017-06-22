@@ -16,10 +16,10 @@ import de.unima.ar.collector.R;
 
 public class SeparatedListAdapter extends BaseAdapter
 {
-    public final Map<String, Adapter> sections = new LinkedHashMap<>();
-    public final ArrayAdapter<String> headers;
-    public final static int             TYPE_SECTION_HEADER = 0;
-    public              DataSetObserver observer            = new DataSetObserver()
+    private final Map<String, Adapter> sections = new LinkedHashMap<>();
+    private final ArrayAdapter<String> headers;
+    private final static int             TYPE_SECTION_HEADER = 0;
+    private              DataSetObserver observer            = new DataSetObserver()
     {
         public void onChanged()
         {

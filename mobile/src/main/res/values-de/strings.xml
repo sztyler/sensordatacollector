@@ -12,6 +12,7 @@
     <string name="app_icon_statistics">Daten auswerten</string>
     <string name="app_icon_services">Dienste</string>
     <string name="service_name">SensorDataCollectorService</string>
+    <string name="service_permission_exit">Die Anwendung wurde geschlossen da nicht alle erfolgerlichen Rechte erteilt wurden. Wenn Sie uns nicht vertrauen, können Sie gerne den SourceCode auf Github inspezieren und die App selbst kompilieren. Vielen Dank.</string>
 
     <!-- Main Screen -->
     <string name="main_overview">Übersicht</string>
@@ -35,7 +36,7 @@
 
     <!-- Sensor/Collector Management -->
     <string name="sensor_selftest_title">Sensoren-Selbsttest</string>
-    <string name="sensor_selftest_notify1">Der Sensor muss gestopped werden, bevor der Selbsttest gestartet wird!</string>
+    <string name="sensor_selftest_notify1">Der Sensor muss gestoppt werden, bevor der Selbsttest gestartet wird!</string>
     <string name="sensor_selftest_notify2">Test nicht implementiert!</string>
     <string name="sensor_selftest_calc">Berechnung der Frequenz</string>
     <string name="sensor_selftest_x">X</string>
@@ -44,7 +45,7 @@
     <string name="sensor_selftest_frequency">Frequenz</string>
     <string name="sensor_selftest_button">Test</string>
     <string name="sensor_selftest_notdetected">nicht erkannt!</string>
-    <string name="sensor_frequency_notify">Der Sensor muss gestopped werden, bevor die Frequenz geändert werden kann!</string>
+    <string name="sensor_frequency_notify">Der Sensor muss gestoppt werden, bevor die Frequenz geändert werden kann!</string>
     <string name="sensor_frequency_dialog_title">Frequenz</string>
     <string name="sensor_frequency_dialog_text">Bitte geben Sie die Frequenz (<u><i><b>Hz</b></i></u>) ein:\n(Warnung: Die App wird nicht mehr reagieren, wenn der Wert zu hoch ist!)</string>
     <string name="sensor_frequency_dialog_text2">Bitte geben Sie die Frequenz (<u><i><b>ms</b></i></u>) ein:\n(Dieser Sensor reagiert möglicherweise langsamer als festgelegt!)</string>
@@ -62,6 +63,8 @@
     <string name="sensor_cache_to_database">Schreibe Daten in die Datenbank &#8230;</string>
     <string name="sensor_cache_to_database_done">Fertig</string>
     <string name="sensor_microphone_error">Fehler! Das Mikrofon konnte nicht initialisiert werden.</string>
+    <string name="sensor_video_error">Fehler! Die Videokamera konnte nicht initialisiert werden.</string>
+    <string name="sensor_video_storage">Alle Videoaufnahmen werden direkt auf deinen Speicher geschrieben.</string>
 
 
     <!-- Activity Management -->
@@ -257,7 +260,7 @@
     <string name="option_export_nowritablemedia">Export fehlgeschlagen! Es wurde kein beschreibbarer Speicher gefunden.</string>
     <string name="option_about_title">Über</string>
     <string name="option_about_version">Version</string>
-    <string name="option_about_version_description">1.5.20</string>
+    <string name="option_about_version_description">1.5.21</string>
     <string name="option_about_developer">Entwickler</string>
     <string name="option_about_developer_description">Timo Sztyler (2014&#8212;2017), Fabian Kramm (2014)</string>
     <string name="option_about_institution">Institution</string>
